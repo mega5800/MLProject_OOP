@@ -11,7 +11,7 @@ class PDFBooksFolder:
         self.__m_PDFBooksList = []
         self.__m_PDFFilesInFolderCounter = len(glob.glob1(self.__m_PDFBooksFolderPath, "*.pdf"))
 
-        for i in range(0, self.__m_PDFFilesInFolderCounter):
+        for i in range(0, self.__m_PDFFilesInFolderCounter):  # should every file has it's own thread?
             currentPDFBookFolderPath = self.__m_PDFBooksFolderPath + "/book{0}".format(i + 1)
             currentPDFBookFilePath = self.__m_PDFBooksFolderPath + "/book{0}.pdf".format(i+1)
             self.__m_PDFBooksList.append(PDFBook(i+1, currentPDFBookFolderPath, currentPDFBookFilePath))
