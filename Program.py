@@ -1,3 +1,3 @@
-from Classes.PDFBook import PDFBook
+from Classes.PDFBooksFolder import PDFBooksFolder
 
-book = PDFBook("book1_test.pdf")
+book = PDFBooksFolder("pdf books")
