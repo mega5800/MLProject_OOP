@@ -10,6 +10,7 @@ class PDFBook:
     def __init__(self, i_BookFilePath):
         self.__m_BookFilePath = i_BookFilePath
         self.__savePDFBookPagesAsPNGFiles()
+        self.__convertPNGFilesToGrayScale()
         self.__savePNGFilesInPagesList()
 
     def __savePDFBookPagesAsPNGFiles(self):
@@ -25,6 +26,13 @@ class PDFBook:
             pix = page.getPixmap(matrix=mat)
             output = "Pages/page{0}.png".format(i + 1)
             pix.writePNG(output)
+
+    def __convertPNGFilesToGrayScale(self):
+        for i in range(0, self.__m_NumberOfPagesInPDFBook):
+            imgFilePath = "Pages/page{0}.png".format(i + 1)
+            imgToConvert = cv2.imread(imgFilePath)
+            imgToConvert = cv2.cvtColor(imgToConvert, cv2.COLOR_BGR2GRAY)
+            cv2.imwrite(imgFilePath, imgToConvert)
 
     def __savePNGFilesInPagesList(self):
         self.__m_PagesList = []
