@@ -5,8 +5,8 @@ import os
 class Page:
     __k_Threshold = 350
     __k_MaxLineGap = 250
-    __k_MinLineLength = 500
-    __k_LineWidth = 100
+    __k_MinLineLength = 550
+    __k_LineWidth = 115
 
     def __init__(self, i_PageNum, i_PageFolderPath, i_PageFilePath):
         self.__m_NumberOfLinesInPage = 0
@@ -60,7 +60,7 @@ class Page:
         if i_YIndexToCrop - Page.__k_LineWidth < 0:
             lineImage = self.__m_PageImage[0:i_YIndexToCrop + 15, 0:3304]
         else:
-            lineImage = self.__m_PageImage[i_YIndexToCrop - Page.__k_LineWidth:i_YIndexToCrop, 0:3304]
+            lineImage = self.__m_PageImage[i_YIndexToCrop - Page.__k_LineWidth+15:i_YIndexToCrop+25, 0:2979]
 
         if not os.path.isdir(self.__m_PageFolderPath):
             os.mkdir(self.__m_PageFolderPath)
