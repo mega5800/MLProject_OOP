@@ -3,9 +3,12 @@ import numpy as np
 import os
 
 class Page:
-    __k_Threshold = 350
-    __k_MaxLineGap = 250
-    __k_MinLineLength = 550
+    __k_KernelSize = 5
+    __k_LowThreshold = 50
+    __k_HighThreshold = 150
+    __k_CannyThreshold = 312
+    __k_MinLineLength = 750
+    __k_MaxLineGap = 2000
     __k_LineWidth = 115
 
     def __init__(self, i_PageNum, i_PageFolderPath, i_PageFilePath):
@@ -13,33 +16,45 @@ class Page:
         self.__m_PageNum = i_PageNum
         self.__m_PageFolderPath = i_PageFolderPath
         self.__m_PageFilePath = i_PageFilePath
-        self.__convertAndCropPNGFileToGrayScale()
-        self.__preformCannyAndHoughLinesPOnImage()
+
+        self.__convertPNGFileToGrayScale()
+        self.__preformHoughLinesPOnImage()
         self.__sortProcessedPageImage()
         self.__cropLinesFromPage()
 
-        self.__dynamicLineMarks()
+    def __preformHoughLinesPOnImage(self):
+        imgCopy = self.__m_PageImage.copy()
+        blur_gray = cv2.GaussianBlur(imgCopy, (Page.__k_KernelSize, Page.__k_KernelSize), 0)
+        edges = cv2.Canny(blur_gray, Page.__k_LowThreshold, Page.__k_HighThreshold)
+        line_image = np.copy(imgCopy) * 0
+        self.__m_ProcessedPageImage = cv2.HoughLinesP(edges, 1, np.pi / 180, Page.__k_CannyThreshold, np.array([]), Page.__k_MinLineLength, Page.__k_MaxLineGap)
 
-    def __convertAndCropPNGFileToGrayScale(self):
+        # testing actions
+        for line in self.__m_ProcessedPageImage:
+            for x1, y1, x2, y2 in line:
+                cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
+
+        if not os.path.isdir(self.__m_PageFolderPath):
+            os.mkdir(self.__m_PageFolderPath)
+
+        lines_edges = cv2.addWeighted(imgCopy, 0.8, line_image, 1, 0)
+        cv2.imwrite(self.__m_PageFolderPath+"/lines_edges_test.png", lines_edges)
+
+    def __convertPNGFileToGrayScale(self):
         imgToCropAndConvert = cv2.imread(self.__m_PageFilePath)
         imgToCropAndConvert = cv2.cvtColor(imgToCropAndConvert, cv2.COLOR_BGR2GRAY)
-        imgToCropAndConvert = imgToCropAndConvert[850:3830, 0:2979]
         self.__m_PageImage = imgToCropAndConvert
         cv2.imwrite(self.__m_PageFilePath, imgToCropAndConvert)
-
-    def __preformCannyAndHoughLinesPOnImage(self):
-        self.__m_ProcessedPageImage = cv2.Canny(self.__m_PageImage, 30, 11, apertureSize=3)
-        self.__m_ProcessedPageImage = cv2.HoughLinesP(self.__m_ProcessedPageImage, 1, np.pi / 180, Page.__k_Threshold, maxLineGap=Page.__k_MaxLineGap, minLineLength=Page.__k_MinLineLength)
 
     def __sortProcessedPageImage(self):
         self.__m_ProcessedPageImage = sorted(self.__m_ProcessedPageImage, key=lambda x: x[:][0][1])
 
     def __cropLinesFromPage(self):
-        self.__m_LinesList = []
+        #self.__m_LinesList = []
         self.__m_yIndexList = []
 
         for line in self.__m_ProcessedPageImage:
-            if line[0][1] == line[0][3]:
+            if line[0][1] > 900 and line[0][1] == line[0][3]:
                 yIndex = line[0][1]
                 if self.__distinctLineCheck(yIndex):
                     self.__m_yIndexList.append(yIndex)
@@ -57,31 +72,10 @@ class Page:
         return result
 
     def __cropNewLine(self, i_YIndexToCrop):
-        if i_YIndexToCrop - Page.__k_LineWidth < 0:
-            lineImage = self.__m_PageImage[0:i_YIndexToCrop + 15, 0:3304]
-        else:
-            lineImage = self.__m_PageImage[i_YIndexToCrop - Page.__k_LineWidth+15:i_YIndexToCrop+25, 0:2979]
-
+        lineImage = self.__m_PageImage[i_YIndexToCrop - Page.__k_LineWidth+15:i_YIndexToCrop+20, 0:4212]
         if not os.path.isdir(self.__m_PageFolderPath):
             os.mkdir(self.__m_PageFolderPath)
 
         self.__m_NumberOfLinesInPage += 1
         lineFilePath = self.__m_PageFolderPath + "/line{0}.png".format(self.__m_NumberOfLinesInPage)
         cv2.imwrite(lineFilePath, lineImage)
-
-    """
-        if i_YIndexToCrop - k_LineWidth < 0:
-            line_image = i_ImageToCrop[0:i_YIndexToCrop + 15, 0:3304]
-        else:
-            line_image = i_ImageToCrop[i_YIndexToCrop - k_LineWidth + 15:i_YIndexToCrop + 15, 0:3304]
-    """
-
-    def __dynamicLineMarks(self):
-        imageCopy = self.__m_PageImage.copy()
-
-        for line in self.__m_ProcessedPageImage:
-            x1, y1, x2, y2 = line[0]
-            if y1 == y2:
-                cv2.line(imageCopy, (x1, y1), (x2, y2), (0, 255, 0), 3)
-        fileName = self.__m_PageFolderPath + "/page{0}_Lines.png".format(self.__m_PageNum)
-        cv2.imwrite(fileName, imageCopy)
