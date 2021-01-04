@@ -1,13 +1,18 @@
 import cv2
 
-class Page:
-    def __init__(self, i_PageFilePath):
-        self.__m_PageFilePath = i_PageFilePath
-        self.__convertAndCropPNGFileToGrayScale()
+from Croppers.LineCropper import LineCropper
 
-    def __convertAndCropPNGFileToGrayScale(self):
+class Page:
+    def __init__(self, i_PageNum, i_PageFolderPath, i_PageFilePath):
+        self.__m_PageNum = i_PageNum
+        self.__m_PageFolderPath = i_PageFolderPath
+        self.__m_PageFilePath = i_PageFilePath
+        self.__convertPNGFileToGrayScale()
+        self.__m_LineCropper = LineCropper(self.__m_PageImage, self.__m_PageFolderPath)
+        self.__m_LinesList = self.__m_LineCropper.GetLinesList()
+
+    def __convertPNGFileToGrayScale(self):
         imgToCropAndConvert = cv2.imread(self.__m_PageFilePath)
         imgToCropAndConvert = cv2.cvtColor(imgToCropAndConvert, cv2.COLOR_BGR2GRAY)
-        imgToCropAndConvert = imgToCropAndConvert[835:3870, 0:2979]
         self.__m_PageImage = imgToCropAndConvert
         cv2.imwrite(self.__m_PageFilePath, imgToCropAndConvert)
