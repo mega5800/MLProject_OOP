@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 
+from Classes.Line import Line
+
 class LineCropper:
     __k_KernelSize = 5
     __k_LowThreshold = 50
@@ -15,11 +17,14 @@ class LineCropper:
         self.__m_NumberOfLinesInPage = 0
         self.__m_PageImageToCrop = i_PageImage
         self.__m_PageImageToCropFolderPath = i_PageImageFolderPath
+
+    def GetLinesList(self):
         self.__preformHoughLinesPOnImage()
         self.__sortProcessedPageImage()
         self.__cropLinesFromPage()
+        self.__saveHoughLinesPResultImage()
 
-        # self.__saveHoughLinesPResultImage()
+        return self.__m_LinesList
 
     def __preformHoughLinesPOnImage(self):
         blur_gray = cv2.GaussianBlur(self.__m_PageImageToCrop.copy(), (LineCropper.__k_KernelSize, LineCropper.__k_KernelSize), 0)
@@ -30,7 +35,7 @@ class LineCropper:
         self.__m_ProcessedImageToCrop = sorted(self.__m_ProcessedImageToCrop, key=lambda x: x[:][0][1])
 
     def __cropLinesFromPage(self):
-        #self.__m_LinesList = []
+        self.__m_LinesList = []
         self.__m_YIndexList = []
 
         for line in self.__m_ProcessedImageToCrop:
@@ -52,12 +57,13 @@ class LineCropper:
         return result
 
     def __cropNewLine(self, i_YIndexToCrop):
-        lineImage = self.__m_PageImage[i_YIndexToCrop - LineCropper.__k_LineWidth+15:i_YIndexToCrop+20, 0:4212]
+        lineImage = self.__m_PageImageToCrop[i_YIndexToCrop - LineCropper.__k_LineWidth+15:i_YIndexToCrop+20, 0:4212]
         if not os.path.isdir(self.__m_PageImageToCropFolderPath):
             os.mkdir(self.__m_PageImageToCropFolderPath)
 
         self.__m_NumberOfLinesInPage += 1
         lineFilePath = self.__m_PageImageToCropFolderPath + "/line{0}.png".format(self.__m_NumberOfLinesInPage)
+        self.__m_LinesList.append(Line(self.__m_NumberOfLinesInPage, self.__m_PageImageToCropFolderPath, lineFilePath))
         cv2.imwrite(lineFilePath, lineImage)
 
     def __saveHoughLinesPResultImage(self):
