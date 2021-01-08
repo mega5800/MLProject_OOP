@@ -2,13 +2,17 @@ import cv2
 import numpy as np
 import os
 
+# רעיון של רשת סטטיסטית
+# נחשב את הערך התחתון עם הכי הרבה קולות וערך עליון עם הכי הרבה קולות
+# ונתחשב רק בשורות בטווח הזה
+
 from Classes.Line import Line
 
 class LineCropper:
     __k_KernelSize = 5
     __k_LowThreshold = 50
     __k_HighThreshold = 150
-    __k_CannyThreshold = 312
+    __k_CannyThreshold = 300
     __k_MinLineLength = 750
     __k_MaxLineGap = 2000
     __k_LineWidth = 115
@@ -19,7 +23,8 @@ class LineCropper:
         self.__m_PageImageToCropFolderPath = i_PageImageFolderPath
 
     def GetLinesList(self):
-        self.__preformHoughLinesPOnImage()
+        tempNumpyArr = self.__preformHoughLinesPOnImage()
+        self.__getNecessaryLines(tempNumpyArr)
         self.__sortProcessedPageImage()
         self.__cropLinesFromPage()
         self.__saveHoughLinesPResultImage()
@@ -29,21 +34,26 @@ class LineCropper:
     def __preformHoughLinesPOnImage(self):
         blur_gray = cv2.GaussianBlur(self.__m_PageImageToCrop.copy(), (LineCropper.__k_KernelSize, LineCropper.__k_KernelSize), 0)
         edges = cv2.Canny(blur_gray, LineCropper.__k_LowThreshold, LineCropper.__k_HighThreshold)
-        self.__m_ProcessedImageToCrop = cv2.HoughLinesP(edges, 1, np.pi / 180, LineCropper.__k_CannyThreshold, np.array([]), LineCropper.__k_MinLineLength, LineCropper.__k_MaxLineGap)
+
+        return cv2.HoughLinesP(edges, 1, np.pi / 180, LineCropper.__k_CannyThreshold, np.array([]), LineCropper.__k_MinLineLength, LineCropper.__k_MaxLineGap)
+
+    def __getNecessaryLines(self, i_NumpyArr):
+        self.__m_YIndexList = []
+        self.__m_ProcessedImageToCrop = []
+
+        for line in i_NumpyArr:
+            if line[0][1] == line[0][3] and self.__distinctLineCheck(line[0][1]):
+                self.__m_ProcessedImageToCrop.append(line)
+                self.__m_YIndexList.append(line[0][1])
 
     def __sortProcessedPageImage(self):
         self.__m_ProcessedImageToCrop = sorted(self.__m_ProcessedImageToCrop, key=lambda x: x[:][0][1])
 
     def __cropLinesFromPage(self):
         self.__m_LinesList = []
-        self.__m_YIndexList = []
 
         for line in self.__m_ProcessedImageToCrop:
-            if line[0][1] > 900 and line[0][1] == line[0][3]:
-                yIndex = line[0][1]
-                if self.__distinctLineCheck(yIndex):
-                    self.__m_YIndexList.append(yIndex)
-                    self.__cropNewLine(yIndex)
+            self.__cropNewLine(line[0][1])
 
     def __distinctLineCheck(self, i_NumToCheck):
         result = True
@@ -57,7 +67,11 @@ class LineCropper:
         return result
 
     def __cropNewLine(self, i_YIndexToCrop):
-        lineImage = self.__m_PageImageToCrop[i_YIndexToCrop - LineCropper.__k_LineWidth+15:i_YIndexToCrop+20, 0:4212]
+        if i_YIndexToCrop - LineCropper.__k_LineWidth < 0:
+            lineImage = self.__m_PageImageToCrop[0:i_YIndexToCrop + 20, 0:4212]
+        else:
+            lineImage = self.__m_PageImageToCrop[i_YIndexToCrop - LineCropper.__k_LineWidth + 15:i_YIndexToCrop + 20, 0:4212]
+
         if not os.path.isdir(self.__m_PageImageToCropFolderPath):
             os.mkdir(self.__m_PageImageToCropFolderPath)
 
