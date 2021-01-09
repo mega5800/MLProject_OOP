@@ -10,7 +10,6 @@ class CropperFactory:
 
         return cropperToCreate
 
-
 from Enums.eCropperFactoryContext import eCropperFactoryContext
 from Croppers.LineCropper import LineCropper
 from Croppers.WordCropper import WordCropper
