@@ -1,7 +1,3 @@
-from Enums.eCropperFactoryContext import eCropperFactoryContext
-from Croppers.LineCropper import LineCropper
-from Croppers.WordCropper import WordCropper
-
 class CropperFactory:
     @staticmethod
     def CreateCropper(i_CropperFactoryContext, i_ItemImage, i_ItemFolderPath):
@@ -13,3 +9,8 @@ class CropperFactory:
             cropperToCreate = WordCropper(i_ItemImage, i_ItemFolderPath)
 
         return cropperToCreate
+
+
+from Enums.eCropperFactoryContext import eCropperFactoryContext
+from Croppers.LineCropper import LineCropper
+from Croppers.WordCropper import WordCropper

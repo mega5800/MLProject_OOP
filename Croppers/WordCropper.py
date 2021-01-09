@@ -1,7 +1,3 @@
-import cv2
-
-from Classes.Utils import Utils
-from Classes.Word import Word
 from Croppers.Cropper import Cropper
 
 class WordCropper(Cropper):
@@ -67,3 +63,8 @@ class WordCropper(Cropper):
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
         cv2.imwrite(self.__m_LineImageToCropFolderPath + "/words_edges_test.png", result)
+
+import cv2
+
+from Classes.Utils import Utils
+from Classes.Word import Word
