@@ -52,6 +52,9 @@ class LineCropper:
     def __cropLinesFromPage(self):
         self.__m_LinesList = []
 
+        if not os.path.isdir(self.__m_PageImageToCropFolderPath):
+            os.mkdir(self.__m_PageImageToCropFolderPath)
+
         for line in self.__m_ProcessedImageToCrop:
             self.__cropNewLine(line[0][1])
 
@@ -72,13 +75,11 @@ class LineCropper:
         else:
             lineImage = self.__m_PageImageToCrop[i_YIndexToCrop - LineCropper.__k_LineWidth + 15:i_YIndexToCrop + 20, 0:4212]
 
-        if not os.path.isdir(self.__m_PageImageToCropFolderPath):
-            os.mkdir(self.__m_PageImageToCropFolderPath)
-
         self.__m_NumberOfLinesInPage += 1
         lineFilePath = self.__m_PageImageToCropFolderPath + "/line{0}.png".format(self.__m_NumberOfLinesInPage)
-        self.__m_LinesList.append(Line(self.__m_NumberOfLinesInPage, self.__m_PageImageToCropFolderPath, lineFilePath))
+        lineFolderPath = self.__m_PageImageToCropFolderPath + "/line{0}".format(self.__m_NumberOfLinesInPage)
         cv2.imwrite(lineFilePath, lineImage)
+        self.__m_LinesList.append(Line(self.__m_NumberOfLinesInPage, lineFolderPath, lineFilePath))
 
     def __saveHoughLinesPResultImage(self):
         line_image = np.copy(self.__m_PageImageToCrop.copy()) * 0
@@ -86,9 +87,6 @@ class LineCropper:
         for line in self.__m_ProcessedImageToCrop:
             for x1, y1, x2, y2 in line:
                 cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
-
-        if not os.path.isdir(self.__m_PageImageToCropFolderPath):
-            os.mkdir(self.__m_PageImageToCropFolderPath)
 
         lines_edges = cv2.addWeighted(self.__m_PageImageToCrop.copy(), 0.8, line_image, 1, 0)
         cv2.imwrite(self.__m_PageImageToCropFolderPath + "/lines_edges_test.png", lines_edges)
