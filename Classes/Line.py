@@ -3,3 +3,6 @@ class Line:
         self.__m_LineNum = i_LineNum
         self.__m_LineFolderPath = i_LineFolderPath
         self.__m_LineFilePath = i_LineFilePath
+
+    def __cropWordsFromLine(self):
+        a = 5
