@@ -1,6 +1,9 @@
 import cv2
 import os
 
+from Classes.Utils import Utils
+
+
 class WordCropper:
     def __init__(self, i_LineImage, i_LineImageFolderPath):
         self.__m_NumberOfWordsInLine = 0
@@ -8,15 +11,13 @@ class WordCropper:
         self.__m_LineImageToCropFolderPath = i_LineImageFolderPath
 
     def GetWordsList(self):
+        Utils.CreateFolder(self.__m_LineImageToCropFolderPath)
         self.__cropWordsFromPage()
 
         return self.__m_WordsList
 
     def __cropWordsFromPage(self):
         self.__m_WordsList = []
-
-        if not os.path.isdir(self.__m_LineImageToCropFolderPath):
-            os.mkdir(self.__m_LineImageToCropFolderPath)
 
         img = self.__m_LineImageToCrop.copy()
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

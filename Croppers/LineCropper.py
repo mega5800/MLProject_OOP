@@ -7,6 +7,8 @@ import os
 # ונתחשב רק בשורות בטווח הזה
 
 from Classes.Line import Line
+from Classes.Utils import Utils
+
 
 class LineCropper:
     __k_KernelSize = 5
@@ -51,9 +53,7 @@ class LineCropper:
 
     def __cropLinesFromPage(self):
         self.__m_LinesList = []
-
-        if not os.path.isdir(self.__m_PageImageToCropFolderPath):
-            os.mkdir(self.__m_PageImageToCropFolderPath)
+        Utils.CreateFolder(self.__m_PageImageToCropFolderPath)
 
         for line in self.__m_ProcessedImageToCrop:
             self.__cropNewLine(line[0][1])
