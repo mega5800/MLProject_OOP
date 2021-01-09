@@ -12,7 +12,7 @@ class Page:
         self.__m_LinesList = self.__m_LineCropper.GetLinesList()
 
     def __convertPNGFileToGrayScale(self):
-        imgToCropAndConvert = cv2.imread(self.__m_PageFilePath)
-        imgToCropAndConvert = cv2.cvtColor(imgToCropAndConvert, cv2.COLOR_BGR2GRAY)
-        self.__m_PageImage = imgToCropAndConvert
-        cv2.imwrite(self.__m_PageFilePath, imgToCropAndConvert)
+        imgToConvert = cv2.imread(self.__m_PageFilePath)
+        imgToConvert = cv2.cvtColor(imgToConvert, cv2.COLOR_BGR2GRAY)
+        self.__m_PageImage = imgToConvert
+        cv2.imwrite(self.__m_PageFilePath, imgToConvert)
