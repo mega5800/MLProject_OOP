@@ -2,14 +2,15 @@ import cv2
 
 from Classes.Utils import Utils
 from Classes.Word import Word
+from Croppers.Cropper import Cropper
 
-class WordCropper:
+class WordCropper(Cropper):
     def __init__(self, i_LineImage, i_LineImageFolderPath):
         self.__m_NumberOfWordsInLine = 0
         self.__m_LineImageToCrop = i_LineImage
         self.__m_LineImageToCropFolderPath = i_LineImageFolderPath
 
-    def GetWordsList(self):
+    def GetItemsList(self):
         Utils.CreateFolder(self.__m_LineImageToCropFolderPath)
         self.__cropWordsFromPage()
         self.__saveContoursImage()

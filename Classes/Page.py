@@ -1,5 +1,6 @@
 from Classes.Utils import Utils
-from Croppers.LineCropper import LineCropper
+from Croppers.CropperFactory import CropperFactory
+from Enums.eCropperFactoryContext import eCropperFactoryContext
 
 class Page:
     def __init__(self, i_PageNum, i_PageFolderPath, i_PageFilePath):
@@ -7,5 +8,5 @@ class Page:
         self.__m_PageFolderPath = i_PageFolderPath
         self.__m_PageFilePath = i_PageFilePath
         self.__m_PageImage = Utils.ConvertPNGFileToGrayScale(self.__m_PageFilePath)
-        self.__m_LineCropper = LineCropper(self.__m_PageImage, self.__m_PageFolderPath)
-        self.__m_LinesList = self.__m_LineCropper.GetLinesList()
+        self.__m_LineCropper = CropperFactory.CreateCropper(eCropperFactoryContext.CreateLineCropper, self.__m_PageImage, self.__m_PageFolderPath)
+        self.__m_LinesList = self.__m_LineCropper.GetItemsList()
