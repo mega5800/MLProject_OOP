@@ -65,6 +65,5 @@ class WordCropper(Cropper):
         cv2.imwrite(self.__m_LineImageToCropFolderPath + "/words_edges_test.png", result)
 
 import cv2
-
 from Classes.Utils import Utils
 from Classes.Word import Word

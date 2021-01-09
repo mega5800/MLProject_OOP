@@ -87,6 +87,5 @@ class LineCropper(Cropper):
 
 import cv2
 import numpy as np
-
 from Classes.Line import Line
 from Classes.Utils import Utils
