@@ -1,14 +1,12 @@
 import cv2
 import numpy as np
-import os
-
-# רעיון של רשת סטטיסטית
-# נחשב את הערך התחתון עם הכי הרבה קולות וערך עליון עם הכי הרבה קולות
-# ונתחשב רק בשורות בטווח הזה
 
 from Classes.Line import Line
 from Classes.Utils import Utils
 
+# רעיון של רשת סטטיסטית
+# נחשב את הערך התחתון עם הכי הרבה קולות וערך עליון עם הכי הרבה קולות
+# ונתחשב רק בשורות בטווח הזה
 
 class LineCropper:
     __k_KernelSize = 5

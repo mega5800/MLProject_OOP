@@ -1,5 +1,4 @@
-import cv2
-
+from Classes.Utils import Utils
 from Croppers.WordCropper import WordCropper
 
 class Line:
@@ -8,6 +7,6 @@ class Line:
         self.__m_LineNum = i_LineNum
         self.__m_LineFolderPath = i_LineFolderPath
         self.__m_LineFilePath = i_LineFilePath
-        self.__m_LineImage = cv2.imread(self.__m_LineFilePath)
+        self.__m_LineImage = Utils.ConvertPNGFileToGrayScale(self.__m_LineFilePath)
         self.__m_WordCropper = WordCropper(self.__m_LineImage, self.__m_LineFolderPath)
         self.__m_WordsList = self.__m_WordCropper.GetWordsList()

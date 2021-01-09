@@ -1,9 +1,7 @@
-import os
 import fitz
 
 from Classes.Page import Page
 from Classes.Utils import Utils
-
 
 class PDFBook:
     __s_ZoomParam = 5
