@@ -1,15 +1,12 @@
-import cv2
+from Croppers.Cropper import Cropper
 
-from Classes.Utils import Utils
-from Classes.Word import Word
-
-class WordCropper:
+class WordCropper(Cropper):
     def __init__(self, i_LineImage, i_LineImageFolderPath):
         self.__m_NumberOfWordsInLine = 0
         self.__m_LineImageToCrop = i_LineImage
         self.__m_LineImageToCropFolderPath = i_LineImageFolderPath
 
-    def GetWordsList(self):
+    def GetItemsList(self):
         Utils.CreateFolder(self.__m_LineImageToCropFolderPath)
         self.__cropWordsFromPage()
         self.__saveContoursImage()
@@ -66,3 +63,7 @@ class WordCropper:
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
         cv2.imwrite(self.__m_LineImageToCropFolderPath + "/words_edges_test.png", result)
+
+import cv2
+from Classes.Utils import Utils
+from Classes.Word import Word

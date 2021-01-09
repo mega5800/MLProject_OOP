@@ -1,14 +1,10 @@
-import cv2
-import numpy as np
-
-from Classes.Line import Line
-from Classes.Utils import Utils
-
 # רעיון של רשת סטטיסטית
 # נחשב את הערך התחתון עם הכי הרבה קולות וערך עליון עם הכי הרבה קולות
 # ונתחשב רק בשורות בטווח הזה
 
-class LineCropper:
+from Croppers.Cropper import Cropper
+
+class LineCropper(Cropper):
     __k_KernelSize = 5
     __k_LowThreshold = 50
     __k_HighThreshold = 150
@@ -22,7 +18,7 @@ class LineCropper:
         self.__m_PageImageToCrop = i_PageImage
         self.__m_PageImageToCropFolderPath = i_PageImageFolderPath
 
-    def GetLinesList(self):
+    def GetItemsList(self):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
         self.__getNecessaryLines(tempNumpyArr)
         self.__sortProcessedPageImage()
@@ -88,3 +84,8 @@ class LineCropper:
 
         lines_edges = cv2.addWeighted(self.__m_PageImageToCrop.copy(), 0.8, line_image, 1, 0)
         cv2.imwrite(self.__m_PageImageToCropFolderPath + "/lines_edges_test.png", lines_edges)
+
+import cv2
+import numpy as np
+from Classes.Line import Line
+from Classes.Utils import Utils

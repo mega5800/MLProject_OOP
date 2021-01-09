@@ -1,8 +1,3 @@
-import fitz
-
-from Classes.Page import Page
-from Classes.Utils import Utils
-
 class PDFBook:
     __s_ZoomParam = 5
 
@@ -31,3 +26,7 @@ class PDFBook:
             currentPageFolderPath = self.__m_PDFBookFolderPath + "/page{0}".format(i + 1)
             currentPageFilePath = self.__m_PDFBookFolderPath + "/page{0}.png".format(i + 1)
             self.__m_PagesList.append(Page(i+1, currentPageFolderPath, currentPageFilePath))
+
+import fitz
+from Classes.Page import Page
+from Classes.Utils import Utils
