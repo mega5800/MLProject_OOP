@@ -9,5 +9,5 @@ class Line:
         self.__m_LineFolderPath = i_LineFolderPath
         self.__m_LineFilePath = i_LineFilePath
         self.__m_LineImage = cv2.imread(self.__m_LineFilePath)
-        #self.__m_WordCropper = WordCropper(self.__m_LineImage, self.__m_LineFolderPath)
-        #self.__m_WordsList = self.__m_WordCropper.GetWordsList()
+        self.__m_WordCropper = WordCropper(self.__m_LineImage, self.__m_LineFolderPath)
+        self.__m_WordsList = self.__m_WordCropper.GetWordsList()

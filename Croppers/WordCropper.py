@@ -7,7 +7,6 @@ class WordCropper:
         self.__m_LineImageToCrop = i_LineImage
         self.__m_LineImageToCropFolderPath = i_LineImageFolderPath
 
-
     def GetWordsList(self):
         self.__cropWordsFromPage()
 
@@ -15,14 +14,11 @@ class WordCropper:
 
     def __cropWordsFromPage(self):
         self.__m_WordsList = []
-        wordsFolderPath = self.__m_LineImageToCropFolderPath+"/line{0}"
 
         if not os.path.isdir(self.__m_LineImageToCropFolderPath):
             os.mkdir(self.__m_LineImageToCropFolderPath)
 
-        fileName = "/word{0}.png".format(self.__m_NumberOfWordsInLine + 1)
-        tempFilePath = self.__m_LineImageToCropFolderPath + fileName
-        img = cv2.imread(tempFilePath)
+        img = self.__m_LineImageToCrop.copy()
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
@@ -40,4 +36,4 @@ class WordCropper:
             x, y, w, h = box
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        cv2.imwrite(tempFilePath, result)
+        cv2.imwrite(self.__m_LineImageToCropFolderPath+"/words_edges_test.png", result)
