@@ -12,6 +12,5 @@ class PDFBooksFolder:
             currentPDFBookFilePath = self.__m_PDFBooksFolderPath + "/book{0}.pdf".format(i + 1)
             self.__m_PDFBooksList.append(PDFBook(i + 1, currentPDFBookFolderPath, currentPDFBookFilePath))
 
-
 import glob
 from Classes.PDFBook import PDFBook

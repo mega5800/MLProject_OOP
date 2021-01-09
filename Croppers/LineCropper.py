@@ -1,7 +1,3 @@
-# רעיון של רשת סטטיסטית
-# נחשב את הערך התחתון עם הכי הרבה קולות וערך עליון עם הכי הרבה קולות
-# ונתחשב רק בשורות בטווח הזה
-
 from Croppers.Cropper import Cropper
 
 class LineCropper(Cropper):
@@ -14,9 +10,7 @@ class LineCropper(Cropper):
     __k_LineWidth = 115
 
     def __init__(self, i_PageImage, i_PageImageFolderPath):
-        self.__m_NumberOfLinesInPage = 0
-        self.__m_PageImageToCrop = i_PageImage
-        self.__m_PageImageToCropFolderPath = i_PageImageFolderPath
+        super(LineCropper, self).__init__(i_PageImage, i_PageImageFolderPath)
 
     def GetItemsList(self):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
@@ -28,7 +22,7 @@ class LineCropper(Cropper):
         return self.__m_LinesList
 
     def __preformHoughLinesPOnImage(self):
-        blur_gray = cv2.GaussianBlur(self.__m_PageImageToCrop.copy(), (LineCropper.__k_KernelSize, LineCropper.__k_KernelSize), 0)
+        blur_gray = cv2.GaussianBlur(self._m_ItemImage.copy(), (LineCropper.__k_KernelSize, LineCropper.__k_KernelSize), 0)
         edges = cv2.Canny(blur_gray, LineCropper.__k_LowThreshold, LineCropper.__k_HighThreshold)
 
         return cv2.HoughLinesP(edges, 1, np.pi / 180, LineCropper.__k_CannyThreshold, np.array([]), LineCropper.__k_MinLineLength, LineCropper.__k_MaxLineGap)
@@ -47,7 +41,7 @@ class LineCropper(Cropper):
 
     def __cropLinesFromPage(self):
         self.__m_LinesList = []
-        Utils.CreateFolder(self.__m_PageImageToCropFolderPath)
+        Utils.CreateFolder(self._m_ItemImageFolderPath)
 
         for line in self.__m_ProcessedImageToCrop:
             self.__cropNewLine(line[0][1])
@@ -65,25 +59,25 @@ class LineCropper(Cropper):
 
     def __cropNewLine(self, i_YIndexToCrop):
         if i_YIndexToCrop - LineCropper.__k_LineWidth < 0:
-            lineImage = self.__m_PageImageToCrop[0:i_YIndexToCrop + 20, 0:4212]
+            lineImage = self._m_ItemImage[0:i_YIndexToCrop + 20, 0:4212]
         else:
-            lineImage = self.__m_PageImageToCrop[i_YIndexToCrop - LineCropper.__k_LineWidth + 15:i_YIndexToCrop + 20, 0:4212]
+            lineImage = self._m_ItemImage[i_YIndexToCrop - LineCropper.__k_LineWidth + 15:i_YIndexToCrop + 20, 0:4212]
 
-        self.__m_NumberOfLinesInPage += 1
-        lineFilePath = self.__m_PageImageToCropFolderPath + "/line{0}.png".format(self.__m_NumberOfLinesInPage)
-        lineFolderPath = self.__m_PageImageToCropFolderPath + "/line{0}".format(self.__m_NumberOfLinesInPage)
+        self._m_ItemCounter += 1
+        lineFilePath = self._m_ItemImageFolderPath + "/line{0}.png".format(self._m_ItemCounter)
+        lineFolderPath = self._m_ItemImageFolderPath + "/line{0}".format(self._m_ItemCounter)
         cv2.imwrite(lineFilePath, lineImage)
-        self.__m_LinesList.append(Line(self.__m_NumberOfLinesInPage, lineFolderPath, lineFilePath))
+        self.__m_LinesList.append(Line(self._m_ItemCounter, lineFolderPath, lineFilePath))
 
     def __saveHoughLinesPResultImage(self):
-        line_image = np.copy(self.__m_PageImageToCrop.copy()) * 0
+        line_image = np.copy(self._m_ItemImage.copy()) * 0
 
         for line in self.__m_ProcessedImageToCrop:
             for x1, y1, x2, y2 in line:
                 cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
 
-        lines_edges = cv2.addWeighted(self.__m_PageImageToCrop.copy(), 0.8, line_image, 1, 0)
-        cv2.imwrite(self.__m_PageImageToCropFolderPath + "/lines_edges_test.png", lines_edges)
+        lines_edges = cv2.addWeighted(self._m_ItemImage.copy(), 0.8, line_image, 1, 0)
+        cv2.imwrite(self._m_ItemImageFolderPath + "/lines_edges_test.png", lines_edges)
 
 import cv2
 import numpy as np

@@ -2,12 +2,10 @@ from Croppers.Cropper import Cropper
 
 class WordCropper(Cropper):
     def __init__(self, i_LineImage, i_LineImageFolderPath):
-        self.__m_NumberOfWordsInLine = 0
-        self.__m_LineImageToCrop = i_LineImage
-        self.__m_LineImageToCropFolderPath = i_LineImageFolderPath
+        super(WordCropper, self).__init__(i_LineImage, i_LineImageFolderPath)
 
     def GetItemsList(self):
-        Utils.CreateFolder(self.__m_LineImageToCropFolderPath)
+        Utils.CreateFolder(self._m_ItemImageFolderPath)
         self.__cropWordsFromPage()
         self.__saveContoursImage()
 
@@ -22,15 +20,15 @@ class WordCropper(Cropper):
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
-            wordToCrop = self.__m_LineImageToCrop[y:y+h, x:x+w]
-            self.__m_NumberOfWordsInLine += 1
-            wordFilePath = self.__m_LineImageToCropFolderPath + "/word{0}.png".format(self.__m_NumberOfWordsInLine)
-            wordFolderPath = self.__m_LineImageToCropFolderPath + "/word{0}".format(self.__m_NumberOfWordsInLine)
-            self.__m_WordsList.append(Word(self.__m_NumberOfWordsInLine, wordFolderPath, wordFilePath))
+            wordToCrop = self._m_ItemImage[y:y + h, x:x + w]
+            self._m_ItemCounter += 1
+            wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
+            wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
+            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
             cv2.imwrite(wordFilePath, wordToCrop)
 
     def __getThreshValue(self):
-        img = self.__m_LineImageToCrop.copy()
+        img = self._m_ItemImage.copy()
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
         return thresh
@@ -52,14 +50,13 @@ class WordCropper(Cropper):
         return sorted(i_ContoursList, key=lambda ctr: cv2.boundingRect(ctr)[0], reverse=True)
 
     def __saveContoursImage(self):
-        result = self.__m_LineImageToCrop.copy()
+        result = self._m_ItemImage.copy()
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        cv2.imwrite(self.__m_LineImageToCropFolderPath + "/words_edges_test.png", result)
-
+        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test.png", result)
 
 import cv2
 from Classes.Utils import Utils
