@@ -7,9 +7,12 @@ class CropperFactory:
             cropperToCreate = LineCropper(i_ItemImage, i_ItemFolderPath)
         elif i_CropperFactoryContext == eCropperFactoryContext.CreateWordCropper:
             cropperToCreate = WordCropper(i_ItemImage, i_ItemFolderPath)
+        elif i_CropperFactoryContext == eCropperFactoryContext.CreateLetterCropper:
+            cropperToCreate = LetterCropper(i_ItemImage, i_ItemFolderPath)
 
         return cropperToCreate
 
 from Enums.eCropperFactoryContext import eCropperFactoryContext
 from Croppers.LineCropper import LineCropper
 from Croppers.WordCropper import WordCropper
+from Croppers.LetterCropper import LetterCropper
