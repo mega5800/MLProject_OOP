@@ -6,12 +6,12 @@ class WordCropper(Cropper):
 
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
-        self.__cropWordsFromPage()
+        self.__cropWordsFromLine()
         self.__saveContoursImage()
 
         return self.__m_WordsList
 
-    def __cropWordsFromPage(self):
+    def __cropWordsFromLine(self):
         self.__m_WordsList = []
         thresh = self.__getThreshValue()
         morph = self.__performStructuringElementAndGetMorphValue(thresh)
@@ -24,8 +24,8 @@ class WordCropper(Cropper):
             self._m_ItemCounter += 1
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
-            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
             cv2.imwrite(wordFilePath, wordToCrop)
+            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
     def __getThreshValue(self):
         img = self._m_ItemImage.copy()
@@ -57,6 +57,7 @@ class WordCropper(Cropper):
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
         cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test.png", result)
+
 
 import cv2
 from Classes.Utils import Utils
