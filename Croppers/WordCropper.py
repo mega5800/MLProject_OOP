@@ -34,9 +34,9 @@ class WordCropper(Cropper):
         return thresh
 
     def __performStructuringElementAndGetMorphValue(self, i_ThresholdValue):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46))# 48 46
         morph = cv2.morphologyEx(i_ThresholdValue, cv2.MORPH_DILATE, kernel)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (42, 87))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (42, 87))# 42 87
         morph = cv2.morphologyEx(morph, cv2.MORPH_OPEN, kernel)
 
         return morph
