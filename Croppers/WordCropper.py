@@ -33,6 +33,44 @@ class WordCropper(Cropper):
 
         return thresh
 
+    def __countNumberOfWords(self):
+        # 0 - black
+        # 255 - white
+
+        wordNum = 0
+        blackPixelMeetCount = 0
+        whitePixelSum = 0
+        #img = self.convertImageToBlackAndWhite()
+        img = self._m_ItemImage.copy()
+        midWidth = img.shape[0] // 2
+
+        for i in range(img.shape[1]):
+            if img[midWidth, i] > 128:
+                whitePixelSum += 1
+            else:
+                blackPixelMeetCount += 1
+
+        if blackPixelMeetCount != 0:
+            AVG = whitePixelSum // blackPixelMeetCount
+            whitePixelSum = 0
+
+            for i in range(img.shape[1]):
+                if img[midWidth, i] > 200:
+                    whitePixelSum += 1
+                else:
+                    if whitePixelSum > AVG:
+                        wordNum += 1
+                        whitePixelSum = 0
+
+        return wordNum
+
+    # maybe delete???
+    def convertImageToBlackAndWhite(self):
+        imageCopy = self._m_ItemImage.copy()
+        result = cv2.threshold(imageCopy, 175, 255, cv2.THRESH_BINARY)[1]
+        cv2.imwrite(self._m_ItemImageFolderPath + "/invert_test.png", result)
+        return result
+
     def __performStructuringElementAndGetMorphValue(self, i_ThresholdValue):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46))# 48 46
         morph = cv2.morphologyEx(i_ThresholdValue, cv2.MORPH_DILATE, kernel)
@@ -56,7 +94,8 @@ class WordCropper(Cropper):
             x, y, w, h = box
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test.png", result)
+        wordNum = self.__countNumberOfWords()
+        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test_{0}.png".format(wordNum), result)
 
 
 import cv2
