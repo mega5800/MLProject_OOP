@@ -8,6 +8,8 @@ class LineCropper(Cropper):
     __k_MinLineLength = 750
     __k_MaxLineGap = 2000
     __k_LineWidth = 115
+    __k_LineHeightGap = 100
+    __k_LineGapThreshold = 20
 
     def __init__(self, i_PageImage, i_PageImageFolderPath):
         super(LineCropper, self).__init__(i_PageImage, i_PageImageFolderPath)
@@ -15,10 +17,8 @@ class LineCropper(Cropper):
     def GetItemsList(self):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
         self.__getNecessaryLines(tempNumpyArr)
-        self.__sortProcessedPageImage()
         self.__cropLinesFromPage()
         self.__saveHoughLinesPResultImage()
-
         return self.__m_LinesList
 
     def __preformHoughLinesPOnImage(self):
@@ -35,6 +35,24 @@ class LineCropper(Cropper):
             if line[0][1] == line[0][3] and self.__distinctLineCheck(line[0][1]):
                 self.__m_ProcessedImageToCrop.append(line)
                 self.__m_YIndexList.append(line[0][1])
+
+        self.__sortProcessedPageImage()
+        self.__m_YIndexList = sorted(self.__m_YIndexList)
+        self.__findFirstProperHandWrittenLine()
+
+    def __findFirstProperHandWrittenLine(self):
+        previous = 0
+        index = 0
+        for currentLine in self.__m_YIndexList:
+            gap = currentLine - previous
+            if abs(gap - LineCropper.__k_LineHeightGap) < LineCropper.__k_LineGapThreshold:
+                break
+            previous = currentLine
+            index += 1
+        if index != len(self.__m_YIndexList) - 1:
+            self.__m_YIndexList = self.__m_YIndexList[index:]
+            self.__m_ProcessedImageToCrop = self.__m_ProcessedImageToCrop[index:]
+
 
     def __sortProcessedPageImage(self):
         self.__m_ProcessedImageToCrop = sorted(self.__m_ProcessedImageToCrop, key=lambda x: x[:][0][1])
