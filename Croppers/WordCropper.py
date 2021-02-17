@@ -13,22 +13,23 @@ class WordCropper(Cropper):
 
     def __cropWordsFromLine(self):
         self.__m_WordsList = []
-        thresh = self.__getThreshValue()
+        self.__m_ImageInBlackAndWhite = self.__convertImageToBlackAndWhite()
+        thresh = self.__getThreshValue(self.__m_ImageInBlackAndWhite)
         morph = self.__performStructuringElementAndGetMorphValue(thresh)
         self.__getSortedContoursList(morph)
 
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
-            wordToCrop = self._m_ItemImage[y:y + h, x:x + w]
+            wordToCrop = self.__m_ImageInBlackAndWhite[y:y + h, x:x + w]
             self._m_ItemCounter += 1
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
             cv2.imwrite(wordFilePath, wordToCrop)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
-    def __getThreshValue(self):
-        img = self._m_ItemImage.copy()
+    def __getThreshValue(self, i_Image):
+        img = i_Image.copy()
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
         return thresh
@@ -40,8 +41,7 @@ class WordCropper(Cropper):
         wordNum = 0
         blackPixelMeetCount = 0
         whitePixelSum = 0
-        #img = self.convertImageToBlackAndWhite()
-        img = self._m_ItemImage.copy()
+        img = self.__m_ImageInBlackAndWhite.copy()
         midWidth = img.shape[0] // 2
 
         for i in range(img.shape[1]):
@@ -64,17 +64,29 @@ class WordCropper(Cropper):
 
         return wordNum
 
-    # maybe delete???
-    def convertImageToBlackAndWhite(self):
+    def __convertImageToBlackAndWhite(self):
         imageCopy = self._m_ItemImage.copy()
-        result = cv2.threshold(imageCopy, 175, 255, cv2.THRESH_BINARY)[1]
-        cv2.imwrite(self._m_ItemImageFolderPath + "/invert_test.png", result)
+        self.__m_AvgImageValue = self.__getAverageValueFromImage()
+        result = cv2.threshold(imageCopy, self.__m_AvgImageValue, 255, cv2.THRESH_BINARY)[1]
+        cv2.imwrite(self._m_ItemImageFolderPath + "/invert_test_{0}.png".format(self.__m_AvgImageValue), result)
         return result
 
+    def __getAverageValueFromImage(self):
+        imageCellCounter = 0
+        imageCellSum = 0
+        imageCopy = self._m_ItemImage.copy()
+
+        for imageWidthIndex in range(imageCopy.shape[0]):
+            for imageHeightIndex in range(imageCopy.shape[1]):
+                imageCellCounter += 1
+                imageCellSum += imageCopy[imageWidthIndex, imageHeightIndex]
+
+        return imageCellSum//imageCellCounter
+
     def __performStructuringElementAndGetMorphValue(self, i_ThresholdValue):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46))# 48 46
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46)) # 48 46
         morph = cv2.morphologyEx(i_ThresholdValue, cv2.MORPH_DILATE, kernel)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (42, 87))# 42 87
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (42, 87)) # 42 87
         morph = cv2.morphologyEx(morph, cv2.MORPH_OPEN, kernel)
 
         return morph
@@ -88,7 +100,7 @@ class WordCropper(Cropper):
         return sorted(i_ContoursList, key=lambda ctr: cv2.boundingRect(ctr)[0], reverse=True)
 
     def __saveContoursImage(self):
-        result = self._m_ItemImage.copy()
+        result = self.__m_ImageInBlackAndWhite.copy()
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
