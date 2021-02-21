@@ -13,27 +13,27 @@ class WordCropper(Cropper):
 
     def __cropWordsFromLine(self):
         self.__m_WordsList = []
-        self.__m_ImageInBlackAndWhite = self.__convertImageToBlackAndWhite()
-        thresh = self.__getThreshValue(self.__m_ImageInBlackAndWhite)
+        thresh = self.__getThreshValue()
         morph = self.__performStructuringElementAndGetMorphValue(thresh)
         self.__getSortedContoursList(morph)
 
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
-            wordToCrop = self.__m_ImageInBlackAndWhite[y:y + h, x:x + w]
+            wordToCrop = self._m_ItemImage[y:y + h, x:x + w]
             self._m_ItemCounter += 1
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
             cv2.imwrite(wordFilePath, wordToCrop)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
-    def __getThreshValue(self, i_Image):
-        img = i_Image.copy()
+    def __getThreshValue(self):
+        img = self._m_ItemImage.copy()
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
         return thresh
 
+    # need to fix it
     def __countNumberOfWords(self):
         # 0 - black
         # 255 - white
@@ -41,29 +41,31 @@ class WordCropper(Cropper):
         wordNum = 0
         blackPixelMeetCount = 0
         whitePixelSum = 0
-        img = self.__m_ImageInBlackAndWhite.copy()
-        midWidth = img.shape[0] // 2
+        img = 1#self.__m_ImageInBlackAndWhite.copy()
 
-        for i in range(img.shape[1]):
-            if img[midWidth, i] > 128:
-                whitePixelSum += 1
-            else:
-                blackPixelMeetCount += 1
+        for imageWidthIndex in range(img.shape[0]):
+            for imageHeightIndex in range(img.shape[1]):
+                if img[imageWidthIndex, imageHeightIndex] == 255:
+                    whitePixelSum += 1
+                else:
+                    blackPixelMeetCount += 1
 
         if blackPixelMeetCount != 0:
             AVG = whitePixelSum // blackPixelMeetCount
             whitePixelSum = 0
 
-            for i in range(img.shape[1]):
-                if img[midWidth, i] > 200:
-                    whitePixelSum += 1
-                else:
-                    if whitePixelSum > AVG:
-                        wordNum += 1
-                        whitePixelSum = 0
+            for imageWidthIndex in range(img.shape[0]):
+                for imageHeightIndex in range(img.shape[1]):
+                    if img[imageWidthIndex, imageHeightIndex] == 255:
+                        whitePixelSum += 1
+                    else:
+                        if whitePixelSum > AVG:
+                            wordNum += 1
+                            whitePixelSum = 0
 
         return wordNum
 
+    # maybe delete?
     def __convertImageToBlackAndWhite(self):
         imageCopy = self._m_ItemImage.copy()
         self.__m_AvgImageValue = self.__getAverageValueFromImage()
@@ -100,14 +102,15 @@ class WordCropper(Cropper):
         return sorted(i_ContoursList, key=lambda ctr: cv2.boundingRect(ctr)[0], reverse=True)
 
     def __saveContoursImage(self):
-        result = self.__m_ImageInBlackAndWhite.copy()
+        result = self._m_ItemImage.copy()
         for c in self.__m_ContoursList:
             box = cv2.boundingRect(c)
             x, y, w, h = box
             cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        wordNum = self.__countNumberOfWords()
-        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test_{0}.png".format(wordNum), result)
+        #wordNum = self.__countNumberOfWords()
+        #cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test_{0}.png".format(wordNum), result)
+        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test.png", result)
 
 
 import cv2
