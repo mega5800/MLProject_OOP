@@ -7,112 +7,146 @@ class WordCropper(Cropper):
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
         self.__cropWordsFromLine()
-        self.__saveContoursImage()
+        self.__drawLinesOnImageUsingWordSegmentationList(self._m_ItemImage.copy())
 
         return self.__m_WordsList
 
     def __cropWordsFromLine(self):
         self.__m_WordsList = []
-        thresh = self.__getThreshValue()
-        morph = self.__performStructuringElementAndGetMorphValue(thresh)
-        self.__getSortedContoursList(morph)
+        self.__m_NumberMap = []
+        self.__m_WordSegmentationList = []
 
-        for c in self.__m_ContoursList:
-            box = cv2.boundingRect(c)
-            x, y, w, h = box
-            wordToCrop = self._m_ItemImage[y:y + h, x:x + w]
+        lineImageWithoutLines = self.__deleteLinesFromImage(self._m_ItemImage.copy())
+        self.__convertImageToNumberMap(lineImageWithoutLines)
+        self.__drawVerticalLinesOnImage(lineImageWithoutLines)
+        blackAndWhiteLineImage = self.__convertImageToBlackAndWhite(lineImageWithoutLines)
+        self.__convertImageToNumberMap(blackAndWhiteLineImage)
+        self.__getWordsLinesInGivenImageByNumberList()
+        self.__cropWordsFromImageUsingWordSegmentationList(self._m_ItemImage.copy())
+
+    def __deleteLinesFromImage(self, i_Image):
+        thresh = cv2.threshold(i_Image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 1))
+        detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+        cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        for c in cnts:
+            cv2.drawContours(i_Image, [c], -1, (255, 255, 255), 2)
+
+        return i_Image
+
+    def __convertImageToNumberMap(self, i_ImageToConvert):
+        self.__m_NumberMap.clear()
+
+        for imageHeightIndex in range(i_ImageToConvert.shape[1]):
+            columnSum = 0
+
+            for imageWidthIndex in range(i_ImageToConvert.shape[0]):
+                columnSum += i_ImageToConvert[imageWidthIndex, imageHeightIndex]
+
+            self.__m_NumberMap.append(columnSum // i_ImageToConvert.shape[0])
+
+    def __drawVerticalLinesOnImage(self, i_ImageToDraw):
+        isFirstLineDrawn = False
+        avgValueInList = self.__getAverageValueFromNumberList()
+
+        for i in range(len(self.__m_NumberMap)):
+            if self.__m_NumberMap[i] <= avgValueInList and not isFirstLineDrawn:
+                isFirstLineDrawn = True
+                self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, i)
+
+            if self.__m_NumberMap[i] >= avgValueInList and isFirstLineDrawn:
+                isFirstLineDrawn = False
+                self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, i)
+
+    def __drawVerticalLineOnImageAtGivenIndex(self, i_ImageToDraw, i_Index):
+        for i in range(i_ImageToDraw.shape[0]):
+            i_ImageToDraw[i, i_Index] = 0
+
+    def __getAverageValueFromNumberList(self):
+        return sum(self.__m_NumberMap) // len(self.__m_NumberMap)
+
+    def __convertImageToBlackAndWhite(self, i_Image):
+        imageCopy = i_Image.copy()
+        avgImageValue = self.__getAverageValueFromImage(i_Image)
+        result = cv2.threshold(imageCopy, avgImageValue, 255, cv2.THRESH_BINARY)[1]
+
+        return result
+
+    def __getAverageValueFromImage(self, i_Image):
+        imageCellCounter = 0
+        imageCellSum = 0
+
+        for imageWidthIndex in range(i_Image.shape[0]):
+            for imageHeightIndex in range(i_Image.shape[1]):
+                imageCellCounter += 1
+                imageCellSum += i_Image[imageWidthIndex, imageHeightIndex]
+
+        return imageCellSum // imageCellCounter
+
+    def __getWordsLinesInGivenImageByNumberList(self):
+        isFirstLineDrawn = False
+        avgBetweenBlackLines = self.__getAvgBetweenBlackLines()
+        WordSegmentation = collections.namedtuple('WordSegmentation', ['FirstLineOfWord', 'SecondLineOfWord'])
+
+        for i in range(len(self.__m_NumberMap)):
+            if self.__m_NumberMap[i] == 0 and not isFirstLineDrawn:
+                firstIndex = i
+                isFirstLineDrawn = True
+
+            if self.__m_NumberMap[i] == 255 and isFirstLineDrawn and self.__avgDistanceCheck(i, avgBetweenBlackLines):
+                secondIndex = i
+                self.__m_WordSegmentationList.append(WordSegmentation(firstIndex, secondIndex))
+                isFirstLineDrawn = False
+
+        self.__m_WordSegmentationList.reverse()
+
+    def __getAvgBetweenBlackLines(self):
+        sum = 0
+        counter = 0
+        result = 0
+
+        for i in self.__m_NumberMap:
+            if i != 0:
+                sum += 1
+            else:
+                counter += 1
+
+        if counter != 0:
+            result = sum // counter
+
+        return result
+
+    def __avgDistanceCheck(self, i_Index, i_BlackCellAvg):
+        result = True
+        loopIndex = i_Index
+
+        while loopIndex < len(self.__m_NumberMap) and loopIndex <= i_BlackCellAvg + i_Index:
+            if self.__m_NumberMap[loopIndex] != 255:
+                result = False
+                break
+
+            loopIndex += 1
+
+        return result
+
+    def __cropWordsFromImageUsingWordSegmentationList(self, i_ImageToCrop):
+        for wordSeg in self.__m_WordSegmentationList:
             self._m_ItemCounter += 1
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
-            cv2.imwrite(wordFilePath, wordToCrop)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
+            wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
+            cv2.imwrite(wordFilePath, wordImage)
 
-    def __getThreshValue(self):
-        img = self._m_ItemImage.copy()
-        thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    def __drawLinesOnImageUsingWordSegmentationList(self, i_ImageToDraw):
+        for wordSeg in self.__m_WordSegmentationList:
+            self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, wordSeg.FirstLineOfWord)
+            self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, wordSeg.SecondLineOfWord)
 
-        return thresh
-
-    # need to fix it
-    def __countNumberOfWords(self):
-        # 0 - black
-        # 255 - white
-
-        wordNum = 0
-        blackPixelMeetCount = 0
-        whitePixelSum = 0
-        img = 1#self.__m_ImageInBlackAndWhite.copy()
-
-        for imageWidthIndex in range(img.shape[0]):
-            for imageHeightIndex in range(img.shape[1]):
-                if img[imageWidthIndex, imageHeightIndex] == 255:
-                    whitePixelSum += 1
-                else:
-                    blackPixelMeetCount += 1
-
-        if blackPixelMeetCount != 0:
-            AVG = whitePixelSum // blackPixelMeetCount
-            whitePixelSum = 0
-
-            for imageWidthIndex in range(img.shape[0]):
-                for imageHeightIndex in range(img.shape[1]):
-                    if img[imageWidthIndex, imageHeightIndex] == 255:
-                        whitePixelSum += 1
-                    else:
-                        if whitePixelSum > AVG:
-                            wordNum += 1
-                            whitePixelSum = 0
-
-        return wordNum
-
-    # maybe delete?
-    def __convertImageToBlackAndWhite(self):
-        imageCopy = self._m_ItemImage.copy()
-        self.__m_AvgImageValue = self.__getAverageValueFromImage()
-        result = cv2.threshold(imageCopy, self.__m_AvgImageValue, 255, cv2.THRESH_BINARY)[1]
-        cv2.imwrite(self._m_ItemImageFolderPath + "/invert_test_{0}.png".format(self.__m_AvgImageValue), result)
-        return result
-
-    def __getAverageValueFromImage(self):
-        imageCellCounter = 0
-        imageCellSum = 0
-        imageCopy = self._m_ItemImage.copy()
-
-        for imageWidthIndex in range(imageCopy.shape[0]):
-            for imageHeightIndex in range(imageCopy.shape[1]):
-                imageCellCounter += 1
-                imageCellSum += imageCopy[imageWidthIndex, imageHeightIndex]
-
-        return imageCellSum//imageCellCounter
-
-    def __performStructuringElementAndGetMorphValue(self, i_ThresholdValue):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (48, 46)) # 48 46
-        morph = cv2.morphologyEx(i_ThresholdValue, cv2.MORPH_DILATE, kernel)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (42, 87)) # 42 87
-        morph = cv2.morphologyEx(morph, cv2.MORPH_OPEN, kernel)
-
-        return morph
-
-    def __getSortedContoursList(self, i_MorphValue):
-        self.__m_ContoursList = cv2.findContours(i_MorphValue, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        self.__m_ContoursList = self.__m_ContoursList[0] if len(self.__m_ContoursList) == 2 else self.__m_ContoursList[1]
-        self.__m_ContoursList = self.__sortContoursList(self.__m_ContoursList)
-
-    def __sortContoursList(self, i_ContoursList):
-        return sorted(i_ContoursList, key=lambda ctr: cv2.boundingRect(ctr)[0], reverse=True)
-
-    def __saveContoursImage(self):
-        result = self._m_ItemImage.copy()
-        for c in self.__m_ContoursList:
-            box = cv2.boundingRect(c)
-            x, y, w, h = box
-            cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
-
-        #wordNum = self.__countNumberOfWords()
-        #cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test_{0}.png".format(wordNum), result)
-        cv2.imwrite(self._m_ItemImageFolderPath + "/words_edges_test.png", result)
-
+        cv2.imwrite(self._m_ItemImageFolderPath + "/words_lines_marks.png", i_ImageToDraw)
 
 import cv2
+import collections
 from Classes.Utils import Utils
 from Classes.Word import Word
