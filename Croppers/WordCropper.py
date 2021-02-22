@@ -19,19 +19,36 @@ class WordCropper(Cropper):
         lineImageWithoutLines = self.__deleteLinesFromImage(self._m_ItemImage.copy())
         self.__convertImageToNumberMap(lineImageWithoutLines)
         self.__drawVerticalLinesOnImage(lineImageWithoutLines)
-        blackAndWhiteLineImage = self.__convertImageToBlackAndWhite(lineImageWithoutLines)
-        self.__convertImageToNumberMap(blackAndWhiteLineImage)
+        blackAndWhite = self.__convertImageToBlackAndWhite(lineImageWithoutLines)
+        self.__convertImageToNumberMap(blackAndWhite)
         self.__getWordsLinesInGivenImageByNumberList()
         self.__cropWordsFromImageUsingWordSegmentationList(self._m_ItemImage.copy())
 
     def __deleteLinesFromImage(self, i_Image):
+        getTheUpperLineInfoFlag = False
+
         thresh = cv2.threshold(i_Image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 1))
         detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
         cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        cnts = sorted(cnts, key=lambda ctr: cv2.boundingRect(ctr)[1])
         for c in cnts:
+            if not getTheUpperLineInfoFlag:
+                box = cv2.boundingRect(c)
+                x, y, w, h = box
+                yIndexToCrop = max(y, h) + 5 if max(y, h) + 5 < 120 else 119
+                i_Image = self.__cleanImageAboveUpperLine(i_Image, yIndexToCrop)
+                getTheUpperLineInfoFlag = True
+
             cv2.drawContours(i_Image, [c], -1, (255, 255, 255), 2)
+
+        return i_Image
+
+    def __cleanImageAboveUpperLine(self, i_Image, i_MaxYIndex):
+        for imageWidthIndex in range(i_MaxYIndex):
+            for imageHeightIndex in range(i_Image.shape[1]):
+                i_Image[imageWidthIndex, imageHeightIndex] = 255
 
         return i_Image
 
