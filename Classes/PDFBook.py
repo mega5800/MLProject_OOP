@@ -26,10 +26,8 @@ class PDFBook:
 
     def __savePNGFilesInPagesList(self):
         self.__m_PagesList = []
-        
+
         for i in range(0, self.__m_NumberOfPagesInPDFBook):
             currentPageFolderPath = self.__m_PDFBookFolderPath + "/page{0}".format(i + 1)
             currentPageFilePath = self.__m_PDFBookFolderPath + "/page{0}.png".format(i + 1)
             self.__m_PagesList.append(Page(i+1, currentPageFolderPath, currentPageFilePath))
-
-

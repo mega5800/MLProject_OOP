@@ -5,4 +5,24 @@ class LetterCropper(Cropper):
         super(LetterCropper, self).__init__(i_WordImage, i_WordImageFolderPath)
 
     def GetItemsList(self):
-        a = 5  # need to implement
+        Utils.CreateFolder(self._m_ItemImageFolderPath)
+        self.cropLettersFromWord()
+
+        print("python SaveLetterMarkingFile start")
+        self.__m_cppLetterCropper.SaveLetterMarkingFile()
+        print("python SaveLetterMarkingFile start")
+
+    def cropLettersFromWord(self):
+        imageFolderPath = os.path.normpath(self._m_ItemImageFolderPath)
+        imageFilePath = os.path.normpath(self._m_ItemImage)
+
+        self.__m_cppLetterCropper = CVCodeInCPP.CPPLetterCropper()
+        self.__m_cppLetterCropper.SavingFilePath = imageFolderPath
+        self.__m_cppLetterCropper.ImageFilePath = imageFilePath
+        print("python letter cropper start")
+        self.__m_cppLetterCropper.CropLettersFromImage()
+        print("python letter cropper end")
+
+import CVCodeInCPP
+import os
+from Classes.Utils import Utils
