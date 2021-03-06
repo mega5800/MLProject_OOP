@@ -5,9 +5,13 @@ class WordCropper(Cropper):
         super(WordCropper, self).__init__(i_LineImage, i_LineImageFolderPath)
 
     def GetItemsList(self):
+        print("word cropper - 1")
         Utils.CreateFolder(self._m_ItemImageFolderPath)
+        print("word cropper - 2")
         self.__cropWordsFromLine()
+        print("word cropper - 3")
         self.__drawLinesOnImageUsingWordSegmentationList(self._m_ItemImage.copy())
+        print("word cropper - 4")
 
         return self.__m_WordsList
 
@@ -16,13 +20,21 @@ class WordCropper(Cropper):
         self.__m_NumberMap = []
         self.__m_WordSegmentationList = []
 
+        print("2.1")
         lineImageWithoutLines = self.__deleteLinesFromImage(self._m_ItemImage.copy())
+        print("2.2")
         self.__convertImageToNumberMap(lineImageWithoutLines)
+        print("2.3")
         self.__drawVerticalLinesOnImage(lineImageWithoutLines)
+        print("2.4")
         blackAndWhite = self.__convertImageToBlackAndWhite(lineImageWithoutLines)
+        print("2.5")
         self.__convertImageToNumberMap(blackAndWhite)
+        print("2.6")
         self.__getWordsLinesInGivenImageByNumberList()
+        print("2.7")
         self.__cropWordsFromImageUsingWordSegmentationList(self._m_ItemImage.copy())
+        print("2.8")
 
     def __deleteLinesFromImage(self, i_Image):
         getTheUpperLineInfoFlag = False
@@ -152,9 +164,11 @@ class WordCropper(Cropper):
             self._m_ItemCounter += 1
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
-            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
             wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
-            cv2.imwrite(wordFilePath, wordImage)
+            #wordFilePath = cv2.rotate(wordImage, cv2.ROTATE_90_CLOCKWISE)
+            cv2.imwrite(wordFilePath, cv2.rotate(wordImage, cv2.ROTATE_90_CLOCKWISE))
+            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
+
 
     def __drawLinesOnImageUsingWordSegmentationList(self, i_ImageToDraw):
         for wordSeg in self.__m_WordSegmentationList:
