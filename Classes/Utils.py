@@ -13,3 +13,49 @@ class Utils:
         imgToConvert = cv2.cvtColor(imgToConvert, cv2.COLOR_BGR2GRAY)
 
         return imgToConvert
+
+    @staticmethod
+    def ConvertImageToNumberMap(i_NumberMap, i_ImageToConvert):
+        i_NumberMap.clear()
+
+        for imageHeightIndex in range(i_ImageToConvert.shape[1]):
+            columnSum = 0
+
+            for imageWidthIndex in range(i_ImageToConvert.shape[0]):
+                columnSum += i_ImageToConvert[imageWidthIndex, imageHeightIndex]
+
+            i_NumberMap.append(columnSum // i_ImageToConvert.shape[0])
+
+    @staticmethod
+    def CleanImageAboveUpperLine(i_Image, i_MaxYIndex):
+        for imageWidthIndex in range(i_MaxYIndex):
+            for imageHeightIndex in range(i_Image.shape[1]):
+                i_Image[imageWidthIndex, imageHeightIndex] = 255
+
+        return i_Image
+
+    @staticmethod
+    def DeleteLinesFromImage(i_Image):
+        getTheUpperLineInfoFlag = False
+
+        thresh = cv2.threshold(i_Image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 1))
+        detected_lines = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+        cnts = cv2.findContours(detected_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        cnts = sorted(cnts, key=lambda ctr: cv2.boundingRect(ctr)[1])
+        for c in cnts:
+            if not getTheUpperLineInfoFlag:
+                box = cv2.boundingRect(c)
+                x, y, w, h = box
+                yIndexToCrop = max(y, h) + 5 if max(y, h) + 5 < 120 else 119
+                i_Image = Utils.CleanImageAboveUpperLine(i_Image, yIndexToCrop)
+                getTheUpperLineInfoFlag = True
+
+            cv2.drawContours(i_Image, [c], -1, (255, 255, 255), 2)
+
+        return i_Image
+
+    @staticmethod
+    def GetAverageValueFromNumberList(i_NumberMap):
+        return sum(i_NumberMap) // len(i_NumberMap)
