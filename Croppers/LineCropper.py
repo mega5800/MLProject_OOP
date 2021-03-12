@@ -13,9 +13,9 @@ class LineCropper(Cropper):
 
     def __init__(self, i_PageImage, i_PageImageFolderPath):
         super(LineCropper, self).__init__(i_PageImage, i_PageImageFolderPath)
+        self.__m_NumberMap = []
 
     def GetItemsList(self):
-        self.__m_NumberMap = []
         tempNumpyArr = self.__preformHoughLinesPOnImage()
         self.__getNecessaryLines(tempNumpyArr)
         self.__cropLinesFromPage()

@@ -5,13 +5,9 @@ class WordCropper(Cropper):
         super(WordCropper, self).__init__(i_LineImage, i_LineImageFolderPath)
 
     def GetItemsList(self):
-        print("word cropper - 1")
         Utils.CreateFolder(self._m_ItemImageFolderPath)
-        print("word cropper - 2")
         self.__cropWordsFromLine()
-        print("word cropper - 3")
         self.__drawLinesOnImageUsingWordSegmentationList(self._m_ItemImage.copy())
-        print("word cropper - 4")
 
         return self.__m_WordsList
 
@@ -46,22 +42,11 @@ class WordCropper(Cropper):
             i_ImageToDraw[i, i_Index] = 0
 
     def __convertImageToBlackAndWhite(self, i_Image):
-        imageCopy = i_Image.copy()
         avgImageValue = self.__getAverageValueFromImage(i_Image)
-        result = cv2.threshold(imageCopy, avgImageValue, 255, cv2.THRESH_BINARY)[1]
-
-        return result
+        return np.where(i_Image > avgImageValue, 255, 0)
 
     def __getAverageValueFromImage(self, i_Image):
-        imageCellCounter = 0
-        imageCellSum = 0
-
-        for imageWidthIndex in range(i_Image.shape[0]):
-            for imageHeightIndex in range(i_Image.shape[1]):
-                imageCellCounter += 1
-                imageCellSum += i_Image[imageWidthIndex, imageHeightIndex]
-
-        return imageCellSum // imageCellCounter
+        return int(np.mean(i_Image))
 
     def __getWordsLinesInGivenImageByNumberList(self):
         isFirstLineDrawn = False
@@ -115,8 +100,7 @@ class WordCropper(Cropper):
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
             wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
-            #wordFilePath = cv2.rotate(wordImage, cv2.ROTATE_90_CLOCKWISE)
-            cv2.imwrite(wordFilePath, cv2.rotate(wordImage, cv2.ROTATE_90_CLOCKWISE))
+            cv2.imwrite(wordFilePath, wordImage)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
 
@@ -129,5 +113,6 @@ class WordCropper(Cropper):
 
 import cv2
 import collections
+import numpy as np
 from Classes.Utils import Utils
 from Classes.Word import Word

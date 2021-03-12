@@ -1,5 +1,6 @@
 import os
 import cv2
+import numpy as np
 
 class Utils:
     @staticmethod
@@ -18,16 +19,12 @@ class Utils:
     def ConvertImageToNumberMap(i_NumberMap, i_ImageToConvert):
         i_NumberMap.clear()
 
-        for imageHeightIndex in range(i_ImageToConvert.shape[1]):
-            columnSum = 0
-
-            for imageWidthIndex in range(i_ImageToConvert.shape[0]):
-                columnSum += i_ImageToConvert[imageWidthIndex, imageHeightIndex]
-
+        for i in range(i_ImageToConvert.shape[1]):
+            columnSum = np.sum(i_ImageToConvert[:, i])
             i_NumberMap.append(columnSum // i_ImageToConvert.shape[0])
 
     @staticmethod
-    def CleanImageAboveUpperLine(i_Image, i_MaxYIndex):
+    def __cleanImageAboveUpperLine(i_Image, i_MaxYIndex):
         for imageWidthIndex in range(i_MaxYIndex):
             for imageHeightIndex in range(i_Image.shape[1]):
                 i_Image[imageWidthIndex, imageHeightIndex] = 255
@@ -49,7 +46,7 @@ class Utils:
                 box = cv2.boundingRect(c)
                 x, y, w, h = box
                 yIndexToCrop = max(y, h) + 5 if max(y, h) + 5 < 120 else 119
-                i_Image = Utils.CleanImageAboveUpperLine(i_Image, yIndexToCrop)
+                i_Image = Utils.__cleanImageAboveUpperLine(i_Image, yIndexToCrop)
                 getTheUpperLineInfoFlag = True
 
             cv2.drawContours(i_Image, [c], -1, (255, 255, 255), 2)
@@ -58,4 +55,4 @@ class Utils:
 
     @staticmethod
     def GetAverageValueFromNumberList(i_NumberMap):
-        return sum(i_NumberMap) // len(i_NumberMap)
+        return int(np.mean(i_NumberMap))
