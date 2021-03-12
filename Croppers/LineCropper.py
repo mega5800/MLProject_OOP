@@ -13,6 +13,7 @@ class LineCropper(Cropper):
 
     def __init__(self, i_PageImage, i_PageImageFolderPath):
         super(LineCropper, self).__init__(i_PageImage, i_PageImageFolderPath)
+        self.__m_NumberMap = []
 
     def GetItemsList(self):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
@@ -81,11 +82,20 @@ class LineCropper(Cropper):
         else:
             lineImage = self._m_ItemImage[i_YIndexToCrop - LineCropper.__k_LineWidth + 15:i_YIndexToCrop + 20, 0:4212]
 
-        self._m_ItemCounter += 1
-        lineFilePath = self._m_ItemImageFolderPath + "/line{0}.png".format(self._m_ItemCounter)
-        lineFolderPath = self._m_ItemImageFolderPath + "/line{0}".format(self._m_ItemCounter)
-        cv2.imwrite(lineFilePath, lineImage)
-        self.__m_LinesList.append(Line(self._m_ItemCounter, lineFolderPath, lineFilePath))
+        if not self.__emptyLineCheck(lineImage.copy()):
+            self._m_ItemCounter += 1
+            lineFilePath = self._m_ItemImageFolderPath + "/line{0}.png".format(self._m_ItemCounter)
+            lineFolderPath = self._m_ItemImageFolderPath + "/line{0}".format(self._m_ItemCounter)
+            cv2.imwrite(lineFilePath, lineImage)
+            self.__m_LinesList.append(Line(self._m_ItemCounter, lineFolderPath, lineFilePath))
+
+    def __emptyLineCheck(self, i_ImageToCheck):
+        self.__m_NumberMap.clear()
+        i_ImageToCheck = Utils.DeleteLinesFromImage(i_ImageToCheck)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, i_ImageToCheck)
+        avg = Utils.GetAverageValueFromNumberList(self.__m_NumberMap)
+
+        return avg >= 254
 
     def __saveHoughLinesPResultImage(self):
         line_image = np.copy(self._m_ItemImage.copy()) * 0

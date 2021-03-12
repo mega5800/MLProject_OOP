@@ -7,7 +7,6 @@ class Word:
         #self.__m_LetterCropper = CropperFactory.CreateCropper(eCropperFactoryContext.CreateLetterCropper, self.__m_WordImage, self.__m_WordFolderPath)
         #self.__m_LettersList = self.__m_LetterCropper.GetItemsList()
 
-
 import cv2
 from Enums.eCropperFactoryContext import eCropperFactoryContext
 from Croppers.CropperFactory import CropperFactory
