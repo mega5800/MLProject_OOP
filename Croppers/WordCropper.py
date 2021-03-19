@@ -17,10 +17,10 @@ class WordCropper(Cropper):
         self.__m_WordSegmentationList = []
         
         lineImageWithoutLines = Utils.DeleteLinesFromImage(self._m_ItemImage.copy())
-        Utils.ConvertImageToNumberMap(self.__m_NumberMap, lineImageWithoutLines)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, lineImageWithoutLines, i_UsingTheFunctionForLetterCropper=False)
         self.__drawVerticalLinesOnImage(lineImageWithoutLines)
-        blackAndWhite = self.__convertImageToBlackAndWhite(lineImageWithoutLines)
-        Utils.ConvertImageToNumberMap(self.__m_NumberMap, blackAndWhite)
+        blackAndWhite = Utils.ConvertImageToBlackAndWhite(lineImageWithoutLines)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, blackAndWhite, i_UsingTheFunctionForLetterCropper=False)
         self.__getWordsLinesInGivenImageByNumberList()
         self.__cropWordsFromImageUsingWordSegmentationList(self._m_ItemImage.copy())
 
@@ -31,22 +31,11 @@ class WordCropper(Cropper):
         for i in range(len(self.__m_NumberMap)):
             if self.__m_NumberMap[i] <= avgValueInList and not isFirstLineDrawn:
                 isFirstLineDrawn = True
-                self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, i)
+                Utils.DrawLineOnImageAtGivenIndex(i_ImageToDrawOn=i_ImageToDraw, i_ImageShapeIndex=0, i_Index=i, i_Color=0)
 
             if self.__m_NumberMap[i] >= avgValueInList and isFirstLineDrawn:
                 isFirstLineDrawn = False
-                self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, i)
-
-    def __drawVerticalLineOnImageAtGivenIndex(self, i_ImageToDraw, i_Index):
-        for i in range(i_ImageToDraw.shape[0]):
-            i_ImageToDraw[i, i_Index] = 0
-
-    def __convertImageToBlackAndWhite(self, i_Image):
-        avgImageValue = self.__getAverageValueFromImage(i_Image)
-        return np.where(i_Image > avgImageValue, 255, 0)
-
-    def __getAverageValueFromImage(self, i_Image):
-        return int(np.mean(i_Image))
+                Utils.DrawLineOnImageAtGivenIndex(i_ImageToDrawOn=i_ImageToDraw, i_ImageShapeIndex=0, i_Index=i, i_Color=0)
 
     def __getWordsLinesInGivenImageByNumberList(self):
         isFirstLineDrawn = False
@@ -103,16 +92,14 @@ class WordCropper(Cropper):
             cv2.imwrite(wordFilePath, wordImage)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
-
     def __drawLinesOnImageUsingWordSegmentationList(self, i_ImageToDraw):
         for wordSeg in self.__m_WordSegmentationList:
-            self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, wordSeg.FirstLineOfWord)
-            self.__drawVerticalLineOnImageAtGivenIndex(i_ImageToDraw, wordSeg.SecondLineOfWord)
+            Utils.DrawLineOnImageAtGivenIndex(i_ImageToDrawOn=i_ImageToDraw, i_ImageShapeIndex=0, i_Index=wordSeg.FirstLineOfWord, i_Color=0)
+            Utils.DrawLineOnImageAtGivenIndex(i_ImageToDrawOn=i_ImageToDraw, i_ImageShapeIndex=0, i_Index=wordSeg.SecondLineOfWord, i_Color=0)
 
         cv2.imwrite(self._m_ItemImageFolderPath + "/words_lines_marks.png", i_ImageToDraw)
 
 import cv2
 import collections
-import numpy as np
 from Classes.Utils import Utils
 from Classes.Word import Word

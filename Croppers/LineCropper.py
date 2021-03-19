@@ -92,7 +92,7 @@ class LineCropper(Cropper):
     def __emptyLineCheck(self, i_ImageToCheck):
         self.__m_NumberMap.clear()
         i_ImageToCheck = Utils.DeleteLinesFromImage(i_ImageToCheck)
-        Utils.ConvertImageToNumberMap(self.__m_NumberMap, i_ImageToCheck)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, i_ImageToCheck, i_UsingTheFunctionForLetterCropper=False)
         avg = Utils.GetAverageValueFromNumberList(self.__m_NumberMap)
 
         return avg >= 254
