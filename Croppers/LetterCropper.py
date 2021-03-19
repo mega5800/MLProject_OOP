@@ -7,7 +7,7 @@ class LetterCropper(Cropper):
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
         self.cropLettersFromWord()
-        self.__m_cppLetterCropper.SaveLetterMarkingFile()
+        #self.__m_cppLetterCropper.SaveLetterMarkingFile()
 
     def cropLettersFromWord(self):
         imageFolderPath = os.path.normpath(self._m_ItemImageFolderPath)
