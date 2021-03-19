@@ -100,7 +100,7 @@ class WordCropper(Cropper):
             wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(self._m_ItemCounter)
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
             wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
-            cv2.imwrite(wordFilePath, wordImage)
+            cv2.imwrite(wordFilePath, cv2.rotate(wordImage, cv2.ROTATE_90_CLOCKWISE))
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
 
 
