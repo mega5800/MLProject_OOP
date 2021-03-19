@@ -19,7 +19,7 @@ class LineCropper(Cropper):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
         self.__getNecessaryLines(tempNumpyArr)
         self.__cropLinesFromPage()
-        self.__saveHoughLinesPResultImage()
+        #self.__saveHoughLinesPResultImage()
         return self.__m_LinesList
 
     def __preformHoughLinesPOnImage(self):
@@ -63,7 +63,7 @@ class LineCropper(Cropper):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
 
         for line in self.__m_ProcessedImageToCrop:
-            self.__cropNewLine(line[0][1])
+            self.__convertNewLineToObjectInLinesList(line[0][1])
 
     def __distinctLineCheck(self, i_NumToCheck):
         result = True
@@ -76,7 +76,7 @@ class LineCropper(Cropper):
 
         return result
 
-    def __cropNewLine(self, i_YIndexToCrop):
+    def __convertNewLineToObjectInLinesList(self, i_YIndexToCrop):
         if i_YIndexToCrop - LineCropper.__k_LineWidth < 0:
             lineImage = self._m_ItemImage[0:i_YIndexToCrop + 20, 0:4212]
         else:
@@ -88,6 +88,7 @@ class LineCropper(Cropper):
             lineFolderPath = self._m_ItemImageFolderPath + "/line{0}".format(self._m_ItemCounter)
             cv2.imwrite(lineFilePath, lineImage)
             self.__m_LinesList.append(Line(self._m_ItemCounter, lineFolderPath, lineFilePath))
+            os.remove(lineFilePath)
 
     def __emptyLineCheck(self, i_ImageToCheck):
         self.__m_NumberMap.clear()
@@ -109,5 +110,6 @@ class LineCropper(Cropper):
 
 import cv2
 import numpy as np
+import os
 from Classes.Line import Line
 from Classes.Utils import Utils
