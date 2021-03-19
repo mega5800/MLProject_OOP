@@ -16,13 +16,11 @@ class LetterCropper(Cropper):
         self.__m_ImageWithoutLines = Utils.DeleteLinesFromImage(self._m_ItemImage.copy())
         self.__m_NumberMap = []
 
-        Utils.ConvertImageToNumberMap(self.__m_NumberMap, self.__m_ImageWithoutLines,
-                                      i_UsingTheFunctionForLetterCropper=True)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, self.__m_ImageWithoutLines, i_UsingTheFunctionForLetterCropper=True)
         self.__cleanNoisesInImageWithoutLines()
 
         avgValue = Utils.GetAverageValueFromImage(self.__m_ImageWithoutLines)
-        ret, self.__m_BlackAndWhiteWithoutLinesImage = cv2.threshold(self.__m_ImageWithoutLines.copy(), avgValue, 255,
-                                                                     0)
+        ret, self.__m_BlackAndWhiteWithoutLinesImage = cv2.threshold(self.__m_ImageWithoutLines.copy(), avgValue, 255, 0)
         self.__m_InvertedBlackAndWhiteWithoutLinesImage = cv2.bitwise_not(self.__m_BlackAndWhiteWithoutLinesImage)
         _, self.__m_ConnectedComponentsMarkers = cv2.connectedComponents(self.__m_InvertedBlackAndWhiteWithoutLinesImage)
         self.__cropLettersFromConnectedComponentsAndSaveThem()
@@ -50,7 +48,7 @@ class LetterCropper(Cropper):
         countContours = 0
         for cnt in contours:
             (x, y, w, h) = cv2.boundingRect(cnt)
-            if h > 5 and w > 5:
+            if h > 10 and w > 10:
                 sum += w
                 countContours += 1
 
