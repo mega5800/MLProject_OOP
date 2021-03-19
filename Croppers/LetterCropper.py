@@ -9,7 +9,7 @@ class LetterCropper(Cropper):
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
         self.__saveLettersFromWord()
-        self.__saveConnectedComponentsResultImage()
+        #self.__saveConnectedComponentsResultImage()
 
     def __saveLettersFromWord(self):
         self._m_ItemImage = cv2.cvtColor(self._m_ItemImage, cv2.COLOR_BGR2GRAY)

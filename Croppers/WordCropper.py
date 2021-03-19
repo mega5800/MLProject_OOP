@@ -7,7 +7,7 @@ class WordCropper(Cropper):
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
         self.__cropWordsFromLine()
-        self.__drawLinesOnImageUsingWordSegmentationList(self._m_ItemImage.copy())
+        #self.__drawLinesOnImageUsingWordSegmentationList(self._m_ItemImage.copy())
 
         return self.__m_WordsList
 
@@ -91,6 +91,7 @@ class WordCropper(Cropper):
             wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
             cv2.imwrite(wordFilePath, wordImage)
             self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
+            os.remove(wordFilePath)
 
     def __drawLinesOnImageUsingWordSegmentationList(self, i_ImageToDraw):
         for wordSeg in self.__m_WordSegmentationList:
@@ -100,6 +101,7 @@ class WordCropper(Cropper):
         cv2.imwrite(self._m_ItemImageFolderPath + "/words_lines_marks.png", i_ImageToDraw)
 
 import cv2
+import os
 import collections
 from Classes.Utils import Utils
 from Classes.Word import Word
