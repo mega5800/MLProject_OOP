@@ -1,7 +1,8 @@
 import fitz
+import os
 from Classes.Page import Page
 from Classes.Utils import Utils
-import os
+
 
 class PDFBook:
     __k_ZoomParam = 5
@@ -11,7 +12,7 @@ class PDFBook:
         self.__m_PDFBookFolderPath = i_PDFBookFolderPath
         self.__m_PDFBookFilePath = i_PDFBookFilePath
         self.__savePDFBookPagesAsSeparatePNGFiles()
-        self.__convertPNGFilesToPagesList()
+        self.__savePNGFilesInPagesList()
 
     def __savePDFBookPagesAsSeparatePNGFiles(self):
         Utils.CreateFolder(self.__m_PDFBookFolderPath)
@@ -24,7 +25,7 @@ class PDFBook:
             output = self.__m_PDFBookFolderPath + "/page{0}.png".format(i + 1)
             pix.writePNG(output)
 
-    def __convertPNGFilesToPagesList(self):
+    def __savePNGFilesInPagesList(self):
         self.__m_PagesList = []
 
         for i in range(0, self.__m_NumberOfPagesInPDFBook):

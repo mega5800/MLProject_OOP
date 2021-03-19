@@ -63,7 +63,7 @@ class LineCropper(Cropper):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
 
         for line in self.__m_ProcessedImageToCrop:
-            self.__convertNewLineToObjectInLinesList(line[0][1])
+            self.__cropNewLine(line[0][1])
 
     def __distinctLineCheck(self, i_NumToCheck):
         result = True
@@ -76,7 +76,7 @@ class LineCropper(Cropper):
 
         return result
 
-    def __convertNewLineToObjectInLinesList(self, i_YIndexToCrop):
+    def __cropNewLine(self, i_YIndexToCrop):
         if i_YIndexToCrop - LineCropper.__k_LineWidth < 0:
             lineImage = self._m_ItemImage[0:i_YIndexToCrop + 20, 0:4212]
         else:
@@ -93,7 +93,7 @@ class LineCropper(Cropper):
     def __emptyLineCheck(self, i_ImageToCheck):
         self.__m_NumberMap.clear()
         i_ImageToCheck = Utils.DeleteLinesFromImage(i_ImageToCheck)
-        Utils.ConvertImageToNumberMap(self.__m_NumberMap, i_ImageToCheck, i_UsingTheFunctionForLetterCropper=False)
+        Utils.ConvertImageToNumberMap(self.__m_NumberMap, i_ImageToCheck)
         avg = Utils.GetAverageValueFromNumberList(self.__m_NumberMap)
 
         return avg >= 254
@@ -109,7 +109,7 @@ class LineCropper(Cropper):
         cv2.imwrite(self._m_ItemImageFolderPath + "/lines_edges_test.png", lines_edges)
 
 import cv2
-import numpy as np
 import os
+import numpy as np
 from Classes.Line import Line
 from Classes.Utils import Utils

@@ -16,17 +16,12 @@ class Utils:
         return imgToConvert
 
     @staticmethod
-    def ConvertImageToNumberMap(i_NumberMap, i_ImageToConvert, i_UsingTheFunctionForLetterCropper):
+    def ConvertImageToNumberMap(i_NumberMap, i_ImageToConvert):
         i_NumberMap.clear()
-        imageShapeIndex = 0 if i_UsingTheFunctionForLetterCropper else 1
 
-        for i in range(i_ImageToConvert.shape[imageShapeIndex]):
-            if i_UsingTheFunctionForLetterCropper:
-                columnSum = np.sum(i_ImageToConvert[i, :])
-                i_NumberMap.append(columnSum // i_ImageToConvert.shape[1])
-            else:
-                columnSum = np.sum(i_ImageToConvert[:, i])
-                i_NumberMap.append(columnSum // i_ImageToConvert.shape[0])
+        for i in range(i_ImageToConvert.shape[1]):
+            columnSum = np.sum(i_ImageToConvert[:, i])
+            i_NumberMap.append(columnSum // i_ImageToConvert.shape[0])
 
     @staticmethod
     def __cleanImageAboveUpperLine(i_Image, i_MaxYIndex):
@@ -61,20 +56,3 @@ class Utils:
     @staticmethod
     def GetAverageValueFromNumberList(i_NumberMap):
         return int(np.mean(i_NumberMap))
-
-    @staticmethod
-    def DrawLineOnImageAtGivenIndex(i_ImageToDrawOn, i_ImageShapeIndex, i_Index, i_Color):
-        for i in range(i_ImageToDrawOn.shape[i_ImageShapeIndex]):
-            if i_Color == 0:
-                i_ImageToDrawOn[i, i_Index] = i_Color
-            elif i_Color == 255:
-                i_ImageToDrawOn[i_Index, i] = i_Color
-
-    @staticmethod
-    def ConvertImageToBlackAndWhite(i_Image):
-        avgImageValue = Utils.GetAverageValueFromImage(i_Image)
-        return np.where(i_Image > avgImageValue, 255, 0)
-
-    @staticmethod
-    def GetAverageValueFromImage(i_Image):
-        return int(np.mean(i_Image))
