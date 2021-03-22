@@ -8,9 +8,8 @@ import shutil, glob
 from Classes.Utils import Utils
 
 class ImageClusteringComponent:
-    __k_CategoriesNumber = 40
-
-    def __init__(self, i_RootFolderPath):
+    def __init__(self, i_RootFolderPath, i_CategoriesNumber=40):
+        self.__m_CategoriesNumber = i_CategoriesNumber
         self.__m_RootFolderPath = i_RootFolderPath
         self.__m_SubFoldersInRootFolderPathCounter = len(glob.glob(self.__m_RootFolderPath + "/*/")) + 1
         self.__m_TempLetterList = []
@@ -31,7 +30,7 @@ class ImageClusteringComponent:
             self.__clearAllLists()
 
     def __createCategoryFolders(self):
-        for i in range(1, ImageClusteringComponent.__k_CategoriesNumber + 1):
+        for i in range(1, self.__m_CategoriesNumber + 1):
             Utils.CreateFolder(self.__m_CurrentImagesResultFolder + r"\category = {0}".format(i))
 
     def __saveAllLettersImagesInLettersList(self):
@@ -60,7 +59,7 @@ class ImageClusteringComponent:
             self.__m_FeatureList.append(features.flatten())
 
     def __preformKMeansAlgorithmAndSaveResults(self):
-        kMeansResult = KMeans(n_clusters=ImageClusteringComponent.__k_CategoriesNumber, random_state=0).fit(np.array(self.__m_FeatureList))
+        kMeansResult = KMeans(n_clusters=self.__m_CategoriesNumber, random_state=0).fit(np.array(self.__m_FeatureList))
         for item, category in enumerate(kMeansResult.labels_):
             shutil.copy(self.__m_LettersList[item], self.__m_CurrentImagesResultFolder + r"\category = {0}\i = {1}.png".format(category + 1, item))
 
