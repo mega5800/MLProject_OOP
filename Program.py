@@ -11,10 +11,5 @@ def finishSound():
 
 
 pythonImageClusteringComponent = ImageClusteringComponent(r"C:\Users\mega5\Desktop\python book1\book1")
-cppImageClusteringComponent = ImageClusteringComponent(r"C:\Users\mega5\Desktop\cpp book1\book1")
-
 pythonImageClusteringComponent.StartImageClustering()
-finishSound()
-
-cppImageClusteringComponent.StartImageClustering()
 finishSound()
