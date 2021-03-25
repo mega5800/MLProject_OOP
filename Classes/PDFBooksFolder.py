@@ -12,7 +12,6 @@ class PDFBooksFolder:
             currentPDFBookFilePath = self.__m_PDFBooksFolderPath + r"\book{0}.pdf".format(i + 1)
             self.__m_ThreadsList.append(threading.Thread(target=self.__addNewPDFBookObjectToPDFBooksList, args=(i + 1, currentPDFBookFolderPath, currentPDFBookFilePath,)))
             self.__m_ThreadsList[i].start()
-            #self.__m_PDFBooksList.append(PDFBook(i + 1, currentPDFBookFolderPath, currentPDFBookFilePath))
 
         self.__performJoinFunctionOnThreadsList()
 
