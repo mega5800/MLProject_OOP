@@ -1,9 +1,3 @@
-import fitz
-import threading
-from Classes.Page import Page
-from Classes.Utils import Utils
-import os
-
 class PDFBook:
     __k_ZoomParam = 5
 
@@ -27,25 +21,27 @@ class PDFBook:
 
     def __convertPNGFilesToPagesList(self):
         self.__m_PagesList = []
-        self.__m_ThreadsList = []
+        self.__m_ThreadManager = ThreadManager()
 
         for i in range(0, self.__m_NumberOfPagesInPDFBook):
             currentPageFolderPath = self.__m_PDFBookFolderPath + "/page{0}".format(i + 1)
             currentPageFilePath = self.__m_PDFBookFolderPath + "/page{0}.png".format(i + 1)
-            self.__m_ThreadsList.append(threading.Thread(target=self.__addNewPageToPagesList, args=(i + 1, currentPageFolderPath, currentPageFilePath,)))
-            self.__m_ThreadsList[i].start()
+            self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewPageToPagesList, args=(i + 1, currentPageFolderPath, currentPageFilePath,)))
 
-        self.__performJoinFunctionOnThreadsList()
+        self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
         self.__deletePagesFiles()
 
     def __addNewPageToPagesList(self, i_Counter, i_CurrentPageFolderPath, i_CurrentPageFilePath):
         self.__m_PagesList.append(Page(i_Counter, i_CurrentPageFolderPath, i_CurrentPageFilePath))
 
-    def __performJoinFunctionOnThreadsList(self):
-        for thread in self.__m_ThreadsList:
-            thread.join()
-
     def __deletePagesFiles(self):
         for i in range(0, self.__m_NumberOfPagesInPDFBook):
             currentPageFilePath = self.__m_PDFBookFolderPath + "/page{0}.png".format(i + 1)
             os.remove(currentPageFilePath)
+
+import fitz
+import threading
+from Classes.Page import Page
+from Classes.Utils import Utils
+from Classes.ThreadManager import ThreadManager
+import os
