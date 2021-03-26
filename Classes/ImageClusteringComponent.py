@@ -20,14 +20,17 @@ class ImageClusteringComponent:
 
     def StartImageClustering(self):
         for subFolderIndex in range(1, self.__m_SubFoldersInRootFolderPathCounter):
-            self.__m_CurrentImagesFolder = self.__m_RootFolderPath + r"\page{0}".format(subFolderIndex)
-            self.__m_CurrentImagesResultFolder = self.__m_RootFolderPath + r"\page{0} results".format(subFolderIndex)
-            Utils.CreateFolder(self.__m_CurrentImagesResultFolder)
-            self.__createCategoryFolders()
-            self.__saveAllLettersImagesInLettersList()
-            self.__extractFeaturesFromLettersList()
-            self.__preformKMeansAlgorithmAndSaveResults()
-            self.__clearAllLists()
+            currentBookFolderPath = self.__m_RootFolderPath + r"\book{0}".format(subFolderIndex)
+            subFoldersInBookFolderCounter = len(glob.glob(currentBookFolderPath + "/*/")) + 1
+            for subPageFolder in range(1, subFoldersInBookFolderCounter):
+                self.__m_CurrentImagesFolder = currentBookFolderPath + r"\page{0}".format(subPageFolder)
+                self.__m_CurrentImagesResultFolder = currentBookFolderPath + r"\page{0} results".format(subPageFolder)
+                Utils.CreateFolder(self.__m_CurrentImagesResultFolder)
+                self.__createCategoryFolders()
+                self.__saveAllLettersImagesInLettersList()
+                self.__extractFeaturesFromLettersList()
+                self.__preformKMeansAlgorithmAndSaveResults()
+                self.__clearAllLists()
 
     def __createCategoryFolders(self):
         for i in range(1, self.__m_CategoriesNumber + 1):
