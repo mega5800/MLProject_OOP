@@ -2,6 +2,7 @@ import sys
 import winsound
 from Classes.ImageClusteringComponent import ImageClusteringComponent
 from Classes.PDFBooksFolder import PDFBooksFolder
+import time
 
 constErrorMessage = "An exception occurred\nPlease check the PDF books folder path"
 
@@ -12,7 +13,12 @@ def finishSound():
 
 def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
     try:
+        # create own timer class
+        # create new folder for utils class
+        start = time.time()
         i_MethodPointer()
+        end = time.time()
+        print("\nElapsed time = {}\n".format(end - start))
     except:
         print(i_ErrorMessage)
 

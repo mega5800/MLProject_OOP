@@ -4,8 +4,10 @@ from keras.applications.vgg16 import preprocess_input
 import numpy as np
 from sklearn.cluster import KMeans
 import shutil, glob
+import threading
 
 from Classes.Utils import Utils
+from Classes.ThreadManager import ThreadManager
 
 class ImageClusteringComponent:
     def __init__(self, i_RootFolderPath, i_CategoriesNumber=40):
@@ -15,24 +17,31 @@ class ImageClusteringComponent:
         self.__m_TempLetterList = []
         self.__m_LettersList = []
         self.__m_FeatureList = []
+        self.__m_ThreadManager = ThreadManager()
 
         image.LOAD_TRUNCATED_IMAGES = True
 
     def StartImageClustering(self):
         for subFolderIndex in range(1, self.__m_SubFoldersInRootFolderPathCounter):
-            currentBookFolderPath = self.__m_RootFolderPath + r"\book{0}".format(subFolderIndex)
-            subFoldersInBookFolderCounter = len(glob.glob(currentBookFolderPath + "/*/")) + 1
-            for subPageFolder in range(1, subFoldersInBookFolderCounter):
-                self.__m_CurrentImagesFolder = currentBookFolderPath + r"\page{0}".format(subPageFolder)
-                self.__m_CurrentImagesResultFolder = currentBookFolderPath + r"\page{0} results".format(subPageFolder)
-                Utils.CreateFolder(self.__m_CurrentImagesResultFolder)
-                self.__createCategoryFolders()
-                self.__saveAllLettersImagesInLettersList()
-                self.__extractFeaturesFromLettersList()
-                self.__preformKMeansAlgorithmAndSaveResults()
-                self.__clearAllLists()
+            self.__m_CurrentBookFolderPath = self.__m_RootFolderPath + r"\book{0}".format(subFolderIndex)
+            subFoldersInBookFolderCounter = len(glob.glob(self.__m_CurrentBookFolderPath + "/*/")) + 1
+            for subPageFolderIndex in range(1, subFoldersInBookFolderCounter):
+                self.__createResultsFolderAndCategoryFolders(subPageFolderIndex)
+                self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__startImageClusteringForPageImage, args=(subPageFolderIndex,)))
 
-    def __createCategoryFolders(self):
+        self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
+
+    def __startImageClusteringForPageImage(self, i_PageIndex):
+        self.__m_CurrentImagesFolder = self.__m_CurrentBookFolderPath + r"\page{0}".format(i_PageIndex)
+        self.__saveAllLettersImagesInLettersList()
+        self.__extractFeaturesFromLettersList()
+        self.__preformKMeansAlgorithmAndSaveResults()
+        self.__clearAllLists()
+
+    def __createResultsFolderAndCategoryFolders(self, i_PageIndex):
+        self.__m_CurrentImagesResultFolder = self.__m_CurrentBookFolderPath + r"\page{0} results".format(i_PageIndex)
+        Utils.CreateFolder(self.__m_CurrentImagesResultFolder)
+
         for i in range(1, self.__m_CategoriesNumber + 1):
             Utils.CreateFolder(self.__m_CurrentImagesResultFolder + r"\category = {0}".format(i))
 
