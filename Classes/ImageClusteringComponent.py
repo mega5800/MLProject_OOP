@@ -18,6 +18,7 @@ class ImageClusteringComponent:
         self.__m_LettersList = []
         self.__m_FeatureList = []
         self.__m_ThreadManager = ThreadManager()
+        self.__m_Semaphore = threading.Semaphore()
 
         image.LOAD_TRUNCATED_IMAGES = True
 
@@ -29,7 +30,7 @@ class ImageClusteringComponent:
                 self.__createResultsFolderAndCategoryFolders(subPageFolderIndex)
                 self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__startImageClusteringForPageImage, args=(subPageFolderIndex,)))
 
-        self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
+            self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
 
     def __startImageClusteringForPageImage(self, i_PageIndex):
         self.__m_CurrentImagesFolder = self.__m_CurrentBookFolderPath + r"\page{0}".format(i_PageIndex)
@@ -73,7 +74,9 @@ class ImageClusteringComponent:
     def __preformKMeansAlgorithmAndSaveResults(self):
         kMeansResult = KMeans(n_clusters=self.__m_CategoriesNumber, random_state=0).fit(np.array(self.__m_FeatureList))
         for item, category in enumerate(kMeansResult.labels_):
+            self.__m_Semaphore.acquire()
             shutil.copy(self.__m_LettersList[item], self.__m_CurrentImagesResultFolder + r"\category = {0}\i = {1}.png".format(category + 1, item))
+            self.__m_Semaphore.release()
 
     def __clearAllLists(self):
         self.__m_TempLetterList.clear()
