@@ -11,7 +11,7 @@ class PDFBooksFolder:
             oldFilePath = self.__m_PDFBooksFolderPath + "/{}".format(pdfFilesList[i])
             os.rename(oldFilePath, self.__m_PDFBooksFolderPath + "/book{0}.pdf".format(i + 1))
 
-    def StartImageProcessingOnPDFBook(self):
+    def StartImageProcessingOnPDFBooksFolder(self):
         self.__m_PDFBooksList = []
         self.__m_ThreadManager = ThreadManager()
 
