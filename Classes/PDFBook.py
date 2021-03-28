@@ -42,6 +42,6 @@ class PDFBook:
 import fitz
 import threading
 from Classes.Page import Page
-from Classes.Utils import Utils
-from Classes.ThreadManager import ThreadManager
+from Utilities.Utils import Utils
+from Utilities.ThreadManager import ThreadManager
 import os

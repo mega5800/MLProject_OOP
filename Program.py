@@ -1,6 +1,6 @@
 import sys
 import winsound
-from Classes.PDFBooksFolderClusteringComponent import PDFBooksFolderClusteringComponent
+from ImageClusteringComponents.PDFBooksFolderClusteringComponent import PDFBooksFolderClusteringComponent
 from Classes.PDFBooksFolder import PDFBooksFolder
 import time
 

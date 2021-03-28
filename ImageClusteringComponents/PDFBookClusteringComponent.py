@@ -1,9 +1,9 @@
 import glob
 import threading
 
-from Classes.PageImageClusteringComponent import PageImageClusteringComponent
-from Classes.ThreadManager import ThreadManager
-from Classes.Utils import Utils
+from ImageClusteringComponents.PageImageClusteringComponent import PageImageClusteringComponent
+from Utilities.ThreadManager import ThreadManager
+from Utilities.Utils import Utils
 
 class PDFBookClusteringComponent:
     def __init__(self, i_RootFolderPath, i_CategoriesNumber):

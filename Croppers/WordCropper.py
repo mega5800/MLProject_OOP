@@ -103,5 +103,5 @@ class WordCropper(Cropper):
 import cv2
 import os
 import collections
-from Classes.Utils import Utils
+from Utilities.Utils import Utils
 from Classes.Word import Word

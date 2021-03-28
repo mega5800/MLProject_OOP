@@ -69,4 +69,4 @@ class LetterCropper(Cropper):
                     self._m_ItemCounter += 1
                     cv2.imwrite(self._m_ItemImageFolderPath + "/letter{}.png".format(self._m_ItemCounter), image)
 
-from Classes.Utils import Utils
+from Utilities.Utils import Utils

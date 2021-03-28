@@ -20,5 +20,5 @@ class PDFBooksFolderClusteringComponent:
 
 import glob
 import threading
-from Classes.ThreadManager import ThreadManager
-from Classes.PDFBookClusteringComponent import PDFBookClusteringComponent
+from Utilities.ThreadManager import ThreadManager
+from ImageClusteringComponents.PDFBookClusteringComponent import PDFBookClusteringComponent

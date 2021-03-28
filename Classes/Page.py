@@ -7,6 +7,6 @@ class Page:
         self.__m_LineCropper = CropperFactory.CreateCropper(eCropperFactoryContext.CreateLineCropper, self.__m_PageImage, self.__m_PageFolderPath)
         self.__m_LinesList = self.__m_LineCropper.GetItemsList()
 
-from Classes.Utils import Utils
+from Utilities.Utils import Utils
 from Enums.eCropperFactoryContext import eCropperFactoryContext
 from Croppers.CropperFactory import CropperFactory

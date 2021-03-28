@@ -29,4 +29,4 @@ import glob
 import os
 import threading
 from Classes.PDFBook import PDFBook
-from Classes.ThreadManager import ThreadManager
+from Utilities.ThreadManager import ThreadManager
