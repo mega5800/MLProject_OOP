@@ -14,13 +14,14 @@ def finishSound():
 def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
     try:
         # create own timer class
-        # create new folder for utils class
         start = time.time()
         i_MethodPointer()
         end = time.time()
         print("\nElapsed time = {}\n".format(end - start))
     except:
         print(i_ErrorMessage)
+    finally:
+        finishSound()
 
 
 if len(sys.argv) > 1:
@@ -35,6 +36,5 @@ if len(sys.argv) > 1:
         pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath)
 
     performAMethodInTryCatchBlock(pdfBooksFolderClusteringComponent.StartImageClusteringOnPDFBooksFolder, constErrorMessage)
-    finishSound()
 else:
     print("Please enter a pdf books folder path")
