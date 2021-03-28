@@ -3,6 +3,7 @@ from Croppers.Cropper import Cropper
 class WordCropper(Cropper):
     def __init__(self, i_LineImage, i_LineImageFolderPath):
         super(WordCropper, self).__init__(i_LineImage, i_LineImageFolderPath)
+        self.__m_ThreadManager = ThreadManager()
 
     def GetItemsList(self):
         Utils.CreateFolder(self._m_ItemImageFolderPath)
@@ -90,7 +91,17 @@ class WordCropper(Cropper):
             wordFolderPath = self._m_ItemImageFolderPath + "/word{0}".format(self._m_ItemCounter)
             wordImage = i_ImageToCrop[0:i_ImageToCrop.shape[1], wordSeg.FirstLineOfWord: wordSeg.SecondLineOfWord]
             cv2.imwrite(wordFilePath, wordImage)
-            self.__m_WordsList.append(Word(self._m_ItemCounter, wordFolderPath, wordFilePath))
+            self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewWordToWordsList, args=(wordFolderPath, wordFilePath,)))
+
+        self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
+        self.__deleteWordImages()
+
+    def __addNewWordToWordsList(self, i_WordFolderPath, i_WordFilePath):
+        self.__m_WordsList.append(Word(self._m_ItemCounter, i_WordFolderPath, i_WordFilePath))
+
+    def __deleteWordImages(self):
+        for i in range(1, self._m_ItemCounter + 1):
+            wordFilePath = self._m_ItemImageFolderPath + "/word{0}.png".format(i)
             os.remove(wordFilePath)
 
     def __drawLinesOnImageUsingWordSegmentationList(self, i_ImageToDraw):
@@ -102,6 +113,8 @@ class WordCropper(Cropper):
 
 import cv2
 import os
+import threading
 import collections
 from Utilities.Utils import Utils
 from Classes.Word import Word
+from Utilities.ThreadManager import ThreadManager
