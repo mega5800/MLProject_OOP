@@ -31,7 +31,8 @@ if len(sys.argv) > 1:
 
     # maybe i should find another way to write this
     if len(sys.argv) == 3:
-        pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath, i_CategoriesNumber=sys.argv[2])
+        categoriesNumber = int(sys.argv[2])
+        pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath, i_CategoriesNumber=categoriesNumber)
     else:
         pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath)
 
