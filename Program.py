@@ -28,14 +28,7 @@ if len(sys.argv) > 1:
     pdfBooksFolderPath = sys.argv[1]
     pdfBooksFolder = PDFBooksFolder(pdfBooksFolderPath)
     performAMethodInTryCatchBlock(pdfBooksFolder.StartImageProcessingOnPDFBooksFolder, constErrorMessage)
-
-    # maybe i should find another way to write this
-    if len(sys.argv) == 3:
-        categoriesNumber = int(sys.argv[2])
-        pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath, i_CategoriesNumber=categoriesNumber)
-    else:
-        pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath)
-
+    pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath)
     performAMethodInTryCatchBlock(pdfBooksFolderClusteringComponent.StartImageClusteringOnPDFBooksFolder, constErrorMessage)
 else:
     print("Please enter a pdf books folder path")

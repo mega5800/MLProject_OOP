@@ -1,7 +1,6 @@
 class PDFBooksFolderClusteringComponent:
-    def __init__(self, i_PDFBooksFolderPath, i_CategoriesNumber=40):
+    def __init__(self, i_PDFBooksFolderPath):
         self.__m_PDFBooksFolderPath = i_PDFBooksFolderPath
-        self.__m_CategoriesNumber = i_CategoriesNumber
         self.__m_ThreadManager = ThreadManager()
         self.__m_PDFBookClusteringComponentList = []
 
@@ -15,7 +14,7 @@ class PDFBooksFolderClusteringComponent:
         self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
 
     def __addNewPDFBookClusteringComponentToPDFBookClusteringComponentList(self, i_PDFBookPath):
-        self.__m_PDFBookClusteringComponentList.append(PDFBookClusteringComponent(i_PDFBookPath, self.__m_CategoriesNumber))
+        self.__m_PDFBookClusteringComponentList.append(PDFBookClusteringComponent(i_PDFBookPath))
 
 
 import glob
