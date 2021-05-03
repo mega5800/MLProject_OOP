@@ -1,15 +1,10 @@
 import sys
-import winsound
 from ImageClusteringComponents.PDFBooksFolderClusteringComponent import PDFBooksFolderClusteringComponent
 from Classes.PDFBooksFolder import PDFBooksFolder
+from Utilities.Utils import Utils
 import time
 
 constErrorMessage = "An exception occurred\nPlease check the PDF books folder path"
-
-def finishSound():
-    frequency = 2500
-    duration = 500
-    winsound.Beep(frequency, duration)
 
 def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
     try:
@@ -21,7 +16,7 @@ def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
     except:
         print(i_ErrorMessage)
     finally:
-        finishSound()
+        Utils.PlayFinishSound()
 
 
 if len(sys.argv) > 1:

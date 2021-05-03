@@ -1,8 +1,8 @@
 from keras.preprocessing import image
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg16 import preprocess_input
-import numpy as np
 from sklearn.cluster import KMeans
+import numpy as np
 import shutil
 import glob
 

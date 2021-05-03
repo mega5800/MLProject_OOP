@@ -46,12 +46,14 @@ class SilhouetteClusteringComponent:
         pred_images = predictions.reshape(images.shape[0], -1)
 
         for k in range(SilhouetteClusteringComponent.k_MinKValue, SilhouetteClusteringComponent.k_MaxKValue, 5):
+            print("path = {}, k = {}".format(self.__m_RootFolderPath, k))
             kmeans2 = KMeans(n_clusters=k, random_state=None).fit(pred_images)
             labels = kmeans2.labels_
             self.__m_SilhouetteValuesList.append(silhouette_score(pred_images, labels, metric='euclidean'))
             self.__m_KValuesList.append(k)
 
         self.__m_CategoriesNumber = self.__getBestKValue()
+        print("path = {}, best value = {}".format(self.__m_RootFolderPath, self.__m_CategoriesNumber))
 
     def __getBestKValue(self):
         maxSilhouetteValueIndex = self.__m_SilhouetteValuesList.index(max(self.__m_SilhouetteValuesList))
