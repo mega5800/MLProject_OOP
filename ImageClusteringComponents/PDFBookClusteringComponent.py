@@ -1,33 +1,40 @@
-import glob
-import threading
-
-from ImageClusteringComponents.PageImageClusteringComponent import PageImageClusteringComponent
-from Utilities.ThreadManager import ThreadManager
-from Utilities.Utils import Utils
-
 class PDFBookClusteringComponent:
-    def __init__(self, i_RootFolderPath, i_CategoriesNumber):
-        self.__m_CategoriesNumber = i_CategoriesNumber
+    k_NumberOfConcurrentFilesToProcess = 3
+
+    def __init__(self, i_RootFolderPath):
         self.__m_RootFolderPath = i_RootFolderPath
         self.__m_SubFoldersInRootFolderPathCounter = len(glob.glob(self.__m_RootFolderPath + "/*/")) + 1
-        self.__m_PageImageClusteringComponentList = []
+        self.__m_SilhouetteClusteringComponentList = []
         self.__m_ThreadManager = ThreadManager()
-        self.__startImageClusteringOnPDFBook()
 
-    def __startImageClusteringOnPDFBook(self):
-        for subFolderIndex in range(1, self.__m_SubFoldersInRootFolderPathCounter):
-            self.__m_CurrentPageImageFolder = self.__m_RootFolderPath + r"\page{0}".format(subFolderIndex)
-            self.__createResultsFolderAndCategoryFolders(subFolderIndex)
-            self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewPageImageClusteringComponentToPageImageClusteringComponentList))
+        self.__preformSilhouetteCalculation()
+
+    def __preformSilhouetteCalculation(self):
+        count = 0
+        numModulo = self.__m_SubFoldersInRootFolderPathCounter % PDFBookClusteringComponent.k_NumberOfConcurrentFilesToProcess
+        numDivide = self.__m_SubFoldersInRootFolderPathCounter // PDFBookClusteringComponent.k_NumberOfConcurrentFilesToProcess
+
+        for i in range(1, numDivide + 1):
+            for n in range(PDFBookClusteringComponent.k_NumberOfConcurrentFilesToProcess):
+                count += 1
+                self.__m_CurrentPageImageFolder = self.__m_RootFolderPath + r"\page{0}".format(count)
+                self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewSilhouetteClusteringComponentToSilhouetteClusteringComponentList,args=(self.__m_CurrentPageImageFolder, count,)))
+
+            self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
+            self.__m_ThreadManager.ClearThreadsList()
+
+        for i in range(numModulo):
+            count += 1
+            self.__m_CurrentPageImageFolder = self.__m_RootFolderPath + r"\page{0}".format(count)
+            self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewSilhouetteClusteringComponentToSilhouetteClusteringComponentList, args=(self.__m_CurrentPageImageFolder, count,)))
 
         self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
 
-    def __addNewPageImageClusteringComponentToPageImageClusteringComponentList(self):
-        self.__m_PageImageClusteringComponentList.append(PageImageClusteringComponent(self.__m_CurrentPageImageFolder, self.__m_CurrentPageImageResultFolder, self.__m_CategoriesNumber))
+    def __addNewSilhouetteClusteringComponentToSilhouetteClusteringComponentList(self, i_PageImageFolder, i_FolderIndex):
+        self.__m_SilhouetteClusteringComponentList.append(SilhouetteClusteringComponent(i_PageImageFolder, i_FolderIndex))
 
-    def __createResultsFolderAndCategoryFolders(self, i_PageIndex):
-        self.__m_CurrentPageImageResultFolder = self.__m_RootFolderPath + r"\page{0} results".format(i_PageIndex)
-        Utils.CreateFolder(self.__m_CurrentPageImageResultFolder)
 
-        for i in range(1, self.__m_CategoriesNumber + 1):
-            Utils.CreateFolder(self.__m_CurrentPageImageResultFolder + r"\category = {0}".format(i))
+from Utilities.ThreadManager import ThreadManager
+from ImageClusteringComponents.SilhouetteClusteringComponent import SilhouetteClusteringComponent
+import glob
+import threading

@@ -1,8 +1,8 @@
 from keras.preprocessing import image
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg16 import preprocess_input
-import numpy as np
 from sklearn.cluster import KMeans
+import numpy as np
 import shutil
 import glob
 
@@ -16,13 +16,11 @@ class PageImageClusteringComponent:
         self.__m_FeatureList = []
 
         image.LOAD_TRUNCATED_IMAGES = True
-        self.__startImageClusteringOnPageImage()
 
-    def __startImageClusteringOnPageImage(self):
+    def StartImageClusteringOnPageImage(self):
         self.__saveAllLettersImagesInLettersList()
         self.__extractFeaturesFromLettersList()
         self.__preformKMeansAlgorithmAndSaveResults()
-        self.__clearAllLists()
 
     def __saveAllLettersImagesInLettersList(self):
         numberOfLinesFolders = len(glob.glob(self.__m_PageImageFolderPath + "/*/")) + 1
@@ -50,11 +48,6 @@ class PageImageClusteringComponent:
             self.__m_FeatureList.append(features.flatten())
 
     def __preformKMeansAlgorithmAndSaveResults(self):
-        kMeansResult = KMeans(n_clusters=self.__m_CategoriesNumber, random_state=0).fit(np.array(self.__m_FeatureList))
+        kMeansResult = KMeans(n_clusters=self.__m_CategoriesNumber, random_state=None).fit(np.array(self.__m_FeatureList))
         for item, category in enumerate(kMeansResult.labels_):
             shutil.copy(self.__m_LettersList[item], self.__m_PageImageResultFolderPath + r"\category = {0}\i = {1}.png".format(category + 1, item))
-
-    def __clearAllLists(self):
-        self.__m_TempLetterList.clear()
-        self.__m_LettersList.clear()
-        self.__m_FeatureList.clear()

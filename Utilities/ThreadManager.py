@@ -11,3 +11,6 @@ class ThreadManager:
     def PerformJoinFunctionOnThreadsList(self):
         for thread in self.__m_ThreadsList:
             thread.join()
+
+    def ClearThreadsList(self):
+        self.__m_ThreadsList.clear()
