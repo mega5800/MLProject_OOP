@@ -8,7 +8,6 @@ constErrorMessage = "An exception occurred\nPlease check the PDF books folder pa
 
 def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
     try:
-        # create own timer class
         start = time.time()
         i_MethodPointer()
         end = time.time()
