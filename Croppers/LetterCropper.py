@@ -1,5 +1,3 @@
-import cv2
-import numpy as np
 from Croppers.Cropper import Cropper
 
 class LetterCropper(Cropper):
@@ -69,4 +67,7 @@ class LetterCropper(Cropper):
                     self._m_ItemCounter += 1
                     cv2.imwrite(self._m_ItemImageFolderPath + "/letter{}.png".format(self._m_ItemCounter), image)
 
-from Classes.Utils import Utils
+
+from Utilities.Utils import Utils
+import cv2
+import numpy as np

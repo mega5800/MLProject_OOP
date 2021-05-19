@@ -7,6 +7,6 @@ class Line:
         self.__m_WordCropper = CropperFactory.CreateCropper(eCropperFactoryContext.CreateWordCropper, self.__m_LineImage, self.__m_LineFolderPath)
         self.__m_WordsList = self.__m_WordCropper.GetItemsList()
 
-from Classes.Utils import Utils
+from Utilities.Utils import Utils
 from Enums.eCropperFactoryContext import eCropperFactoryContext
 from Croppers.CropperFactory import CropperFactory

@@ -14,6 +14,7 @@ class LineCropper(Cropper):
     def __init__(self, i_PageImage, i_PageImageFolderPath):
         super(LineCropper, self).__init__(i_PageImage, i_PageImageFolderPath)
         self.__m_NumberMap = []
+        self.__m_ThreadManager = ThreadManager()
 
     def GetItemsList(self):
         tempNumpyArr = self.__preformHoughLinesPOnImage()
@@ -65,6 +66,9 @@ class LineCropper(Cropper):
         for line in self.__m_ProcessedImageToCrop:
             self.__convertNewLineToObjectInLinesList(line[0][1])
 
+        self.__m_ThreadManager.PerformJoinFunctionOnThreadsList()
+        self.__deleteLinesImages()
+
     def __distinctLineCheck(self, i_NumToCheck):
         result = True
 
@@ -87,7 +91,14 @@ class LineCropper(Cropper):
             lineFilePath = self._m_ItemImageFolderPath + "/line{0}.png".format(self._m_ItemCounter)
             lineFolderPath = self._m_ItemImageFolderPath + "/line{0}".format(self._m_ItemCounter)
             cv2.imwrite(lineFilePath, lineImage)
-            self.__m_LinesList.append(Line(self._m_ItemCounter, lineFolderPath, lineFilePath))
+            self.__m_ThreadManager.AddNewThreadToThreadsList(threading.Thread(target=self.__addNewLineToLinesList, args=(lineFolderPath, lineFilePath,)))
+
+    def __addNewLineToLinesList(self, i_LineFolderPath, i_LineFilePath):
+        self.__m_LinesList.append(Line(self._m_ItemCounter, i_LineFolderPath, i_LineFilePath))
+
+    def __deleteLinesImages(self):
+        for i in range(1, self._m_ItemCounter + 1):
+            lineFilePath = self._m_ItemImageFolderPath + "/line{0}.png".format(i)
             os.remove(lineFilePath)
 
     def __emptyLineCheck(self, i_ImageToCheck):
@@ -111,5 +122,7 @@ class LineCropper(Cropper):
 import cv2
 import numpy as np
 import os
+import threading
 from Classes.Line import Line
-from Classes.Utils import Utils
+from Utilities.Utils import Utils
+from Utilities.ThreadManager import ThreadManager

@@ -1,5 +1,6 @@
 import os
 import cv2
+import winsound
 import numpy as np
 
 class Utils:
@@ -78,3 +79,9 @@ class Utils:
     @staticmethod
     def GetAverageValueFromImage(i_Image):
         return int(np.mean(i_Image))
+
+    @staticmethod
+    def PlayFinishSound():
+        frequency = 2500
+        duration = 500
+        winsound.Beep(frequency, duration)

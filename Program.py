@@ -1,15 +1,29 @@
-import winsound
-from Classes.ImageClusteringComponent import ImageClusteringComponent
+import sys
+from ImageClusteringComponents.PDFBooksFolderClusteringComponent import PDFBooksFolderClusteringComponent
+from Classes.PDFBooksFolder import PDFBooksFolder
+from Utilities.Utils import Utils
+import time
+
+constErrorMessage = "An exception occurred\nPlease check the PDF books folder path"
+
+def performAMethodInTryCatchBlock(i_MethodPointer, i_ErrorMessage):
+    try:
+        # create own timer class
+        start = time.time()
+        i_MethodPointer()
+        end = time.time()
+        print("\nElapsed time = {}\n".format(end - start))
+    except:
+        print(i_ErrorMessage)
+    finally:
+        Utils.PlayFinishSound()
 
 
-def finishSound():
-    frequency = 2500
-    duration = 500
-    winsound.Beep(frequency, duration)
-
-#book = PDFBooksFolder(r"F:\Python Projects\MLProject_OOP\pdf books")
-
-
-pythonImageClusteringComponent = ImageClusteringComponent(r"C:\Users\mega5\Desktop\python book1\book1")
-pythonImageClusteringComponent.StartImageClustering()
-finishSound()
+if len(sys.argv) > 1:
+    pdfBooksFolderPath = sys.argv[1]
+    pdfBooksFolder = PDFBooksFolder(pdfBooksFolderPath)
+    performAMethodInTryCatchBlock(pdfBooksFolder.StartImageProcessingOnPDFBooksFolder, constErrorMessage)
+    pdfBooksFolderClusteringComponent = PDFBooksFolderClusteringComponent(pdfBooksFolderPath)
+    performAMethodInTryCatchBlock(pdfBooksFolderClusteringComponent.StartImageClusteringOnPDFBooksFolder, constErrorMessage)
+else:
+    print("Please enter a pdf books folder path")
